@@ -1,0 +1,13 @@
+﻿
+using envolti.lib.order.domain.Order.Dtos;
+
+namespace envolti.lib.order.domain.Order.Ports
+{
+    public interface IOrderQueuesAdapter
+    {
+        Task ConsumerOrderAsync( string queueName, Func<OrderRequestDto, Task> processOrderCallback, CancellationToken stoppingToken );
+        Task<OrderRequestDto> PublishOrderAsync( OrderRequestDto order, string queueName );
+        Task InitAsync( );
+        Task CloseConnectionAsync( );
+    }
+}

@@ -1,0 +1,6 @@
+@envolti.api.order.driving_HostAddress = http://localhost:5029
+
+GET {{envolti.api.order.driving_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  order-reading-api:
+    build:
+      context: .
+      dockerfile: src/adapters/driving/envolti.api.order.reading.driving/Dockerfile
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    # environment:
+      # ASPNETCORE_ENVIRONMENT: Development
+      # ConnectionStrings__DefaultConnection: "Server=sqlserver;Database=OrderDb;User=sa;Password=L3@ndr0rf;"
+      # RabbitMQ__HostName: "rabbitmq"
+      # RabbitMQ__UserName: "guest"
+      # RabbitMQ__Password: "guest"
+      # Redis__Host: "redis"
+      # Redis__Port: "6379"
+    depends_on:
+      - sqlserver
+      - rabbitmq
+      - redis
+
+  order-api:
+    build:
+      context: .
+      dockerfile: src/adapters/driving/envolti.api.order.driving/Dockerfile
+    ports:
+      - "8090:8080"
+      - "8091:8081"
+    # environment:
+      # ASPNETCORE_ENVIRONMENT: Development
+      # ConnectionStrings__DefaultConnection: "Server=sqlserver;Database=OrderDb;User=sa;Password=L3@ndr0rf;"
+      # RabbitMQ__HostName: "rabbitmq"
+      # RabbitMQ__UserName: "guest"
+      # RabbitMQ__Password: "guest"
+      # Redis__Host: "redis"
+      # Redis__Port: "6379"
+    depends_on:
+      - sqlserver
+      - rabbitmq
+      - redis
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2025-latest
+    environment:
+      SA_PASSWORD: "L3@ndr0rf"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: "guest"
+      RABBITMQ_DEFAULT_PASS: "guest"
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+volumes:
+  sqlserver_data:

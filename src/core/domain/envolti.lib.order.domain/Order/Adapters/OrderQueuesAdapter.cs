@@ -1,15 +1,20 @@
 ﻿using envolti.lib.order.domain.Order.Dtos;
 using envolti.lib.order.domain.Order.Entities;
 using envolti.lib.order.domain.Order.Enums;
+using envolti.lib.order.domain.Order.Exceptions;
 using envolti.lib.order.domain.Order.Ports;
 
 namespace envolti.lib.order.domain.Order.Adapters
 {
     public class OrderQueuesAdapter : OrderRequestDto
     {
-        private void ValidateState( )
+        private async Task ValidateState( IOrderQueuesAdapter orderAdapter, IOrderRepository orderRepository )
         {
-
+            if ( await orderAdapter.Exists( "order_queue", OrderIdExternal )
+                || await orderRepository.OrderExistsAsync( OrderIdExternal ) )
+            {
+                throw new TheOrderNumberCannotBeRepeatedException( );
+            }
         }
 
         public static OrderQueuesAdapter MapToAdapter( OrderRequestDto dto )
@@ -44,13 +49,13 @@ namespace envolti.lib.order.domain.Order.Adapters
             };
         }
 
-        public async Task Save( IOrderQueuesAdapter order )
+        public async Task Save( IOrderQueuesAdapter orderAdapter, IOrderRepository orderRepository )
         {
-            ValidateState( );
+            await ValidateState( orderAdapter, orderRepository );
 
             if ( Id == 0 )
             {
-                var resp = await order.PublishOrderAsync( this, "order_queue" );
+                var resp = await orderAdapter.PublishOrderAsync( this, "order_queue" );
                 Id = resp.Id;
             }
         }

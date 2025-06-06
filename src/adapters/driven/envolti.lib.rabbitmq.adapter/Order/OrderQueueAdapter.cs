@@ -27,8 +27,6 @@ namespace envolti.lib.rabbitmq.adapter.Order
         {
             await InitAsync( );
 
-            //var tcs = new TaskCompletionSource<OrderRequestDto>( );
-
             await _Channel.QueueDeclareAsync(
                 queue: queueName,
                 durable: true,
@@ -51,7 +49,7 @@ namespace envolti.lib.rabbitmq.adapter.Order
 
             await _Channel.BasicConsumeAsync(
                 queue: queueName,
-                autoAck: true,
+                autoAck: false,
                 consumer: consumer
             );
 
@@ -77,6 +75,7 @@ namespace envolti.lib.rabbitmq.adapter.Order
             var body = Encoding.UTF8.GetBytes( message );
 
             var properties = new BasicProperties( );
+            properties.CorrelationId = order.OrderIdExternal.ToString( );
 
             await _Channel.BasicPublishAsync(
                 exchange: "",
@@ -101,6 +100,20 @@ namespace envolti.lib.rabbitmq.adapter.Order
             {
                 await _Connection.CloseAsync( );
             }
+        }
+
+        public async Task<bool> Exists( string queueName, int correlationId )
+        {
+            await InitAsync( );
+
+            var result = await _Channel.BasicGetAsync( queueName, false );
+
+            if ( result != null && result.BasicProperties.CorrelationId == correlationId.ToString( ) )
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }

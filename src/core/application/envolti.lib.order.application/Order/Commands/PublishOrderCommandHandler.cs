@@ -10,10 +10,12 @@ namespace envolti.lib.order.application.Order.Commands
     public class PublishOrderCommandHandler : IRequestHandler<PublishOrderCommand, OrderResponse>
     {
         private readonly IOrderQueuesAdapter _OrderAdapter;
+        private readonly IOrderRepository _OrderRepository;
 
-        public PublishOrderCommandHandler( IOrderQueuesAdapter orderAdapter )
+        public PublishOrderCommandHandler( IOrderQueuesAdapter orderAdapter, IOrderRepository orderRepository )
         {
             _OrderAdapter = orderAdapter;
+            _OrderRepository = orderRepository;
         }
 
         public async Task<OrderResponse> Handle( PublishOrderCommand request, CancellationToken cancellationToken )
@@ -23,7 +25,7 @@ namespace envolti.lib.order.application.Order.Commands
                 var orderDto = request.Data;
                 var order = OrderQueuesAdapter.MapToAdapter( orderDto );
 
-                await order.Save( _OrderAdapter );
+                await order.Save( _OrderAdapter, _OrderRepository );
 
                 return new OrderResponse
                 {

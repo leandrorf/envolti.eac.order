@@ -17,7 +17,7 @@ namespace envolti.lib.order.application.Order.Queries
 
         public async Task<IEnumerable<OrderResponseDto>> Handle( GetAllOrdersQuery request, CancellationToken cancellationToken )
         {
-            List<OrderResponseDto> resp = await _OrderRedisAdapter.ConsumerOrderAllAsync<List<OrderResponseDto>>( "orders", "JSON.GET", "$.items" );
+            List<OrderResponseDto> resp = await _OrderRedisAdapter.ConsumerOrderAllAsync<List<OrderResponseDto>>( "orders", "JSON.GET", "$.items[*]" );
 
             if ( resp == null || !resp.Any( ) )
             {

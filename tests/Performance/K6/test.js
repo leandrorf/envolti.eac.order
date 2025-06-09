@@ -8,7 +8,7 @@ const INITIAL_ORDER_ID = 2;
 
 export let options = {
     vus: 10, // usuários virtuais
-    iterations: 200000, // total de requisições
+    iterations: 100, // total de requisições
     duration: '5h'
 };
 

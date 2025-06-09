@@ -66,8 +66,16 @@ dotnet ef database update --project ..\..\driven\envolti.lib.data.sqlserver
 }
 ```
 
-- Tempo total da requisi��o: 83 ms
-- Tempo total da requisi��o por status dos pedidos: 3 ms
-- Tempo total da requisi��o por todos os pedidos: 3 ms
-- Tempo total da requisi��o do pedido por Id: 3 ms
+### Tempo de requisição POST
+
+- Tempo total da requisições do envio do pedido: 83 ms
 - Tempo total do processamento do pedido: 24 ms
+
+### Tempo de requisição GET
+- Tempo total da requisições por status dos pedidos: 3 ms
+- Tempo total da requisições por todos os pedidos: 3 ms
+- Tempo total da requisições do pedido por Id: 3 ms
+
+### Exemplo de performance
+
+![Sou uma imagem](Tests.png)

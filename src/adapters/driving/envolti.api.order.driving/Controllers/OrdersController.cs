@@ -4,6 +4,7 @@ using envolti.lib.order.domain.Order.Dtos;
 using envolti.lib.order.domain.Order.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 
 namespace envolti.api.order.driving.Controllers
 {
@@ -21,6 +22,8 @@ namespace envolti.api.order.driving.Controllers
         [HttpPost]
         public async Task<ActionResult<OrderResponse>> Post( [FromBody] OrderRequestDto value )
         {
+            Stopwatch stopwatch = Stopwatch.StartNew( );
+
             var command = new PublishOrderCommand
             {
                 Data = value
@@ -30,6 +33,9 @@ namespace envolti.api.order.driving.Controllers
 
             if ( res.Success )
             {
+                stopwatch.Stop( );
+                Console.WriteLine( $"Tempo total da requisição: {stopwatch.ElapsedMilliseconds} ms" );
+
                 return Ok( res.Data );
             }
             else if ( res.ErrorCode == ErrorCodesResponseEnum.THE_ORDER_NUMBER_CANNOT_BE_REPEATED )

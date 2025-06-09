@@ -8,7 +8,7 @@ namespace envolti.lib.redis.adapter
     {
         public static void AddRedisModule( this IServiceCollection services )
         {
-            services.AddTransient<IOrderRedisAdapter, OrderRedisAdapter>( );
+            services.AddSingleton<IOrderRedisAdapter, OrderRedisAdapter>( );
         }
     }
 }

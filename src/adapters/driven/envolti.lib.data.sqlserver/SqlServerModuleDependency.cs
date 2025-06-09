@@ -12,10 +12,19 @@ namespace envolti.lib.data.sqlserver
             services.AddDbContext<SqlServerDbContext>(
                 options => options.UseSqlServer(
                     connectionString,
-                    x => x.MigrationsAssembly( "envolti.lib.data.sqlserver" ) )
+                    sqlOptions =>
+                    {
+                        sqlOptions.EnableRetryOnFailure(
+                            maxRetryCount: 5,
+                            maxRetryDelay: TimeSpan.FromSeconds( 5 ),
+                            errorNumbersToAdd: null );
+                        sqlOptions.ExecutionStrategy( context => new CustomSqlExecutionStrategy( context ) );
+                        sqlOptions.MigrationsAssembly( "envolti.lib.data.sqlserver" );
+                    }
+                )
             );
 
-            services.AddTransient<IOrderRepository, OrderRepository>( );
+            services.AddScoped<IOrderRepository, OrderRepository>( );
         }
     }
 }

@@ -8,7 +8,7 @@ namespace envolti.lib.rabbitmq.adapter
     {
         public static void AddRabbitMqQueueModule( this IServiceCollection services )
         {
-            services.AddTransient<IOrderQueuesAdapter, OrderQueueAdapter>( );
+            services.AddSingleton<IOrderQueuesAdapter, OrderQueueAdapter>( );
         }
     }
 }

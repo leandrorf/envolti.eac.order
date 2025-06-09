@@ -10,7 +10,7 @@ builder.Services.AddControllers( );
 builder.Services.AddEndpointsApiExplorer( );
 builder.Services.AddSwaggerGen( );
 
-builder.Services.AddApplicationModule( setService: false );
+builder.Services.AddApplicationModule( );
 builder.Services.AddRabbitMqQueueModule( );
 builder.Services.AddRedisModule( );
 builder.Services.AddSqlServerModule( builder.Configuration.GetConnectionString( "Main" ) );

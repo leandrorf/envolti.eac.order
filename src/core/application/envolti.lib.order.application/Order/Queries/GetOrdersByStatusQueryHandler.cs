@@ -22,7 +22,7 @@ namespace envolti.lib.order.application.Order.Queries
 
             if ( resp == null || !resp.Any( ) )
             {
-                var orders = await _OrderRepository.GetOrdersByStatusAsync(request.Status);
+                var orders = await _OrderRepository.GetOrdersByStatusAsync( request.Status );
 
                 if ( orders != null && orders.Any( ) )
                 {

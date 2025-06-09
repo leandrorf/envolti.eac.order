@@ -39,6 +39,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "envolti.lib.redis.adapter",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "envolti.api.order.reading.driving", "src\adapters\driving\envolti.api.order.reading.driving\envolti.api.order.reading.driving.csproj", "{AAC88AD0-B7C0-4FE0-985F-74C5D56A5DFE}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Performance", "Performance", "{2C9C74FB-7636-40D9-ADEB-B9247A1B2F24}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "K6", "K6", "{5A75A430-F770-4504-AA85-63C9AA7F7217}"
+	ProjectSection(SolutionItems) = preProject
+		tests\Performance\K6\test.js = tests\Performance\K6\test.js
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "envolti.service.order.driving", "src\adapters\driving\envolti.service.order.driving\envolti.service.order.driving.csproj", "{D767A7AA-AD03-4120-908C-DF12EA969933}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -73,6 +82,10 @@ Global
 		{AAC88AD0-B7C0-4FE0-985F-74C5D56A5DFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AAC88AD0-B7C0-4FE0-985F-74C5D56A5DFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AAC88AD0-B7C0-4FE0-985F-74C5D56A5DFE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D767A7AA-AD03-4120-908C-DF12EA969933}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D767A7AA-AD03-4120-908C-DF12EA969933}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D767A7AA-AD03-4120-908C-DF12EA969933}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D767A7AA-AD03-4120-908C-DF12EA969933}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -91,6 +104,9 @@ Global
 		{6E1AADE4-D703-47DE-8433-217EB11C63E9} = {BAB5AB66-484D-4AE0-9D3F-451BD4B95AF5}
 		{E4C09F91-7C81-4B53-B85F-AF0B2C9DA711} = {BAB5AB66-484D-4AE0-9D3F-451BD4B95AF5}
 		{AAC88AD0-B7C0-4FE0-985F-74C5D56A5DFE} = {5033FA06-1A62-405F-B583-01ADDFB40566}
+		{2C9C74FB-7636-40D9-ADEB-B9247A1B2F24} = {ACFC96FA-93D0-49BD-BD30-C2DB3B6C6F9A}
+		{5A75A430-F770-4504-AA85-63C9AA7F7217} = {2C9C74FB-7636-40D9-ADEB-B9247A1B2F24}
+		{D767A7AA-AD03-4120-908C-DF12EA969933} = {5033FA06-1A62-405F-B583-01ADDFB40566}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1DAE5A64-E6ED-44C0-ADED-B544D5542C66}

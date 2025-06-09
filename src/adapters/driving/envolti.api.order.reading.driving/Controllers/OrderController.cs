@@ -3,6 +3,7 @@ using envolti.lib.order.application.Order.Responses;
 using envolti.lib.order.domain.Order.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 
 namespace envolti.api.order.reading.driving.Controllers
 {
@@ -19,6 +20,8 @@ namespace envolti.api.order.reading.driving.Controllers
         [HttpGet( "{OrderIdExternal}" )]
         public async Task<ActionResult<OrderResponse>> Get( int OrderIdExternal )
         {
+            Stopwatch stopwatch = Stopwatch.StartNew( );
+
             var query = new GetOrderByIdQuery
             {
                 OrderIdExternal = OrderIdExternal
@@ -28,6 +31,9 @@ namespace envolti.api.order.reading.driving.Controllers
 
             if ( response.Success )
             {
+                stopwatch.Stop( );
+                Console.WriteLine( $"Tempo total da requisição do pedido por Id: {stopwatch.ElapsedMilliseconds} ms" );
+
                 return Ok( response.Data );
             }
 
@@ -37,10 +43,15 @@ namespace envolti.api.order.reading.driving.Controllers
         [HttpGet( "GetAll" )]
         public async Task<ActionResult<IEnumerable<OrderResponse>>> GetAll( )
         {
+            Stopwatch stopwatch = Stopwatch.StartNew( );
+
             var response = await _mediator.Send( new GetAllOrdersQuery( ) );
 
             if ( response.Any( ) )
             {
+                stopwatch.Stop( );
+                Console.WriteLine( $"Tempo total da requisição por todos os pedidos: {stopwatch.ElapsedMilliseconds} ms" );
+
                 return Ok( response );
             }
 
@@ -50,6 +61,8 @@ namespace envolti.api.order.reading.driving.Controllers
         [HttpGet( "GetByStatus" )]
         public async Task<ActionResult<IEnumerable<OrderResponse>>> GetByStatus( StatusEnum status )
         {
+            Stopwatch stopwatch = Stopwatch.StartNew( );
+
             var query = new GetOrdersByStatusQuery
             {
                 Status = status
@@ -59,6 +72,9 @@ namespace envolti.api.order.reading.driving.Controllers
 
             if ( response.Any( ) )
             {
+                stopwatch.Stop( );
+                Console.WriteLine( $"Tempo total da requisição por status dos pedidos: {stopwatch.ElapsedMilliseconds} ms" );
+
                 return Ok( response );
             }
 

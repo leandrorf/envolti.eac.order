@@ -1,7 +1,7 @@
 # envolti.eac.order
 
 # Eac
-Architecture, Engineering and Construction
+Engineering, Architecture and Construction
 
 # Preparando ambiente
 
@@ -22,9 +22,9 @@ docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 --restart=always rabbi
 docker run -d --name redis --restart=always -p 6379:6379 redis
 ```
 
-## Configurações
+## ConfiguraÃ§Ãµes
 
-### Configuração do SqlServer
+### ConfiguraÃ§Ã£o do SqlServer
 
 *Acessar o caminho:*
 envolti.eac.order\src\adapters\driving\envolti.api.order.driving
@@ -40,9 +40,9 @@ dotnet ef database update --project ..\..\driven\envolti.lib.data.sqlserver
 * envolti.api.order.driving
 * envolti.api.order.reading.driving
 
-## Instruções de uso
+## InstruÃ§Ãµes de uso
 
-### Exemplo de requisição POST
+### Exemplo de requisiÃ§Ã£o POST
 ```
 {
   "orderIdExternal": 1,
@@ -66,8 +66,8 @@ dotnet ef database update --project ..\..\driven\envolti.lib.data.sqlserver
 }
 ```
 
-- Tempo total da requisição: 83 ms
-- Tempo total da requisição por status dos pedidos: 3 ms
-- Tempo total da requisição por todos os pedidos: 3 ms
-- Tempo total da requisição do pedido por Id: 3 ms
+- Tempo total da requisiï¿½ï¿½o: 83 ms
+- Tempo total da requisiï¿½ï¿½o por status dos pedidos: 3 ms
+- Tempo total da requisiï¿½ï¿½o por todos os pedidos: 3 ms
+- Tempo total da requisiï¿½ï¿½o do pedido por Id: 3 ms
 - Tempo total do processamento do pedido: 24 ms

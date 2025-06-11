@@ -18,55 +18,63 @@ namespace envolti.lib.data.sqlserver.Order
         {
             var strategy = _DbContext.Database.CreateExecutionStrategy( );
 
-            await strategy.ExecuteAsync( async ( ) =>
+            return await strategy.ExecuteAsync( async ( ) =>
             {
-                using ( var transaction = await _DbContext.Database.BeginTransactionAsync( ) )
+                await using var transaction = await _DbContext.Database.BeginTransactionAsync( );
+
+                try
                 {
-                    try
-                    {
-                        _DbContext.Orders.Add( order );
-                        await _DbContext.SaveChangesAsync( );
-                        await transaction.CommitAsync( );
-                    }
-                    catch
-                    {
-                        await transaction.RollbackAsync( );
-                        throw;
-                    }
+                    _DbContext.Orders.Add( order );
+                    await _DbContext.SaveChangesAsync( );
+                    await transaction.CommitAsync( );
+                    return order;
+                }
+                catch ( DbUpdateException ex )
+                {
+                    await transaction.RollbackAsync( );
+                    throw new Exception( "Erro ao criar pedido - possível falha de conexão", ex );
+                }
+
+                catch ( Exception ex )
+                {
+                    await transaction.RollbackAsync( );
+                    throw new Exception( "Erro ao criar pedido", ex );
                 }
             } );
 
-            return order;
         }
 
         public async Task<IEnumerable<OrderEntity>> GetAllAsync( )
         {
             return await _DbContext.Orders
-                .AsNoTracking( )
                 .Include( o => o.Products )
+                .AsNoTracking( )
                 .ToListAsync( );
         }
 
         public async Task<OrderEntity?> GetOrderByIdAsync( int orderIdExternal )
         {
             return await _DbContext.Orders
-                .AsNoTracking( )
                 .Include( o => o.Products )
+                .AsNoTracking( )
                 .FirstOrDefaultAsync( x => x.OrderIdExternal == orderIdExternal );
         }
 
         public async Task<IEnumerable<OrderEntity>> GetOrdersByStatusAsync( StatusEnum status )
         {
             return await _DbContext.Orders
-                .AsNoTracking( )
                 .Include( o => o.Products )
+                .AsNoTracking( )
                 .Where( x => x.Status == status )
                 .ToListAsync( );
         }
 
         public async Task<bool> OrderExistsAsync( int id )
         {
-            return await _DbContext.Orders.AnyAsync( x => x.OrderIdExternal == id );
+            return await _DbContext.Orders
+                .AsNoTracking( )
+                .Select( x => x.OrderIdExternal )
+                .AnyAsync( x => x == id );
         }
     }
 }

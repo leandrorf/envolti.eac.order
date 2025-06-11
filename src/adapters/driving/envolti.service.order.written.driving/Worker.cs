@@ -49,7 +49,7 @@ namespace envolti.service.order.driving
                     ).ConfigureAwait( false );
                 }, stoppingToken );
 
-                await Task.Delay( 500, stoppingToken ).ConfigureAwait( false );
+                await Task.Delay( 60000, stoppingToken ).ConfigureAwait( false );
             }
         }
 

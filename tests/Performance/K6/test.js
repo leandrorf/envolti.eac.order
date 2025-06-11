@@ -7,8 +7,8 @@ let orderCounter = new Counter('order_counter');
 const INITIAL_ORDER_ID = 2;
 
 export let options = {
-    vus: 10, // usuários virtuais
-    iterations: 100, // total de requisições
+    vus: 100, // usuários virtuais
+    iterations: 200000, // total de requisições
     duration: '5h'
 };
 

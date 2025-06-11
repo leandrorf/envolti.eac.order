@@ -45,6 +45,13 @@ namespace envolti.lib.rabbitmq.adapter.Order
                         _Connection = await factory.CreateConnectionAsync( );
                         _Channel = await _Connection.CreateChannelAsync( );
                     }
+
+                    // Ensure _Channel is not null after initialization
+                    if ( _Channel == null )
+                    {
+                        throw new InvalidOperationException( "Failed to initialize RabbitMQ channel." );
+                    }
+
                     return;
                 }
                 catch ( Exception ex )
@@ -57,22 +64,9 @@ namespace envolti.lib.rabbitmq.adapter.Order
             throw new Exception( "Falha ao conectar ao RabbitMQ após múltiplas tentativas." );
         }
 
-        private async Task EnsureInitializedAsync( )
+        private async Task EnsureInitializedAsync( string queueName )
         {
-            try
-            {
-                await _initTask.Value;
-            }
-            catch ( Exception ex )
-            {
-                Console.WriteLine( $"Erro ao inicializar Redis: {ex.Message}" );
-                throw;
-            }
-        }
-
-        public async Task ConsumerOrderAsync( string queueName, Func<OrderRequestDto, Task> processOrderCallback, CancellationToken stoppingToken )
-        {
-            await EnsureInitializedAsync( );
+            await _initTask.Value;
 
             await _Channel.QueueDeclareAsync(
                 queue: queueName,
@@ -81,6 +75,11 @@ namespace envolti.lib.rabbitmq.adapter.Order
                 autoDelete: false,
                 arguments: null
             );
+        }
+
+        public async Task ConsumerOrderAsync( string queueName, Func<OrderRequestDto, Task> processOrderCallback, CancellationToken stoppingToken )
+        {
+            await EnsureInitializedAsync( queueName );
 
             var consumer = new AsyncEventingBasicConsumer( _Channel );
 
@@ -119,38 +118,47 @@ namespace envolti.lib.rabbitmq.adapter.Order
 
             while ( !stoppingToken.IsCancellationRequested )
             {
-                await Task.Delay( 1000, stoppingToken );
+                await Task.Delay( 60000, stoppingToken );
             }
         }
 
         public async Task<OrderRequestDto> PublishOrderAsync( OrderRequestDto order, string queueName )
         {
-            await EnsureInitializedAsync( );
+            await EnsureInitializedAsync( queueName );
 
-            await _Channel.QueueDeclareAsync(
-                queue: queueName,
-                durable: true,
-                exclusive: false,
-                autoDelete: false,
-                arguments: null
-            );
+            // Verifica se a conexão está ativa
+            if ( _Channel == null || !_Channel.IsOpen )
+            {
+                Console.WriteLine( "Canal não está aberto. Tentando reconectar..." );
+                await InitAsync( );
+            }
 
-            string message = JsonConvert.SerializeObject( order );
-            var body = Encoding.UTF8.GetBytes( message );
+            try
+            {
+                string message = JsonConvert.SerializeObject( order );
+                var body = Encoding.UTF8.GetBytes( message );
 
-            var properties = new BasicProperties( );
-            properties.CorrelationId = order.OrderIdExternal.ToString( );
+                var properties = new BasicProperties( );
+                properties.CorrelationId = order.OrderIdExternal.ToString( );
 
-            await _Channel.BasicPublishAsync(
-                exchange: "",
-                routingKey: queueName,
-                mandatory: false,
-                basicProperties: properties,
-                body: body,
-                cancellationToken: CancellationToken.None
-            );
+                await _Channel.BasicPublishAsync(
+                    exchange: "",
+                    routingKey: queueName,
+                    mandatory: false,
+                    basicProperties: properties,
+                    body: body,
+                    cancellationToken: CancellationToken.None
+                );
 
-            return order;
+                Console.WriteLine( $"Pedido publicado na fila '{queueName}' com sucesso!" );
+
+                return order;
+            }
+            catch ( Exception ex )
+            {
+                Console.WriteLine( $"Erro ao publicar na fila '{queueName}': {ex.Message}" );
+                throw;
+            }
         }
 
         public async Task CloseConnectionAsync( )
@@ -168,7 +176,7 @@ namespace envolti.lib.rabbitmq.adapter.Order
 
         public async Task<bool> Exists( string queueName, int correlationId )
         {
-            await EnsureInitializedAsync( );
+            await EnsureInitializedAsync( queueName );
 
             if ( _Channel == null || !_Channel.IsOpen )
             {
@@ -176,9 +184,16 @@ namespace envolti.lib.rabbitmq.adapter.Order
                 return false;
             }
 
-            var result = await _Channel.BasicGetAsync( queueName, false );
+            var resp = await _Channel.BasicGetAsync( queueName, false );
 
-            return result != null && result.BasicProperties.CorrelationId == correlationId.ToString( );
+            if ( resp != null && resp.BasicProperties.CorrelationId == correlationId.ToString( ) )
+            {
+                return true;
+            }
+
+            Console.WriteLine( "O objeto já existe na fila." );
+
+            return false;
         }
 
         private async Task MonitorConnectionAsync( CancellationToken stoppingToken )

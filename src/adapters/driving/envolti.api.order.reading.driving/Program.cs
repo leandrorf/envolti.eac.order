@@ -1,7 +1,7 @@
 using envolti.lib.data.sqlserver;
 using envolti.lib.order.application;
-using envolti.lib.rabbitmq.adapter;
 using envolti.lib.redis.adapter;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder( args );
 
@@ -10,8 +10,11 @@ builder.Services.AddControllers( );
 builder.Services.AddEndpointsApiExplorer( );
 builder.Services.AddSwaggerGen( );
 
+builder.Services.AddMediatR( cfg =>
+    cfg.RegisterServicesFromAssembly( Assembly.GetExecutingAssembly( ) )
+);
+
 builder.Services.AddApplicationModule( );
-builder.Services.AddRabbitMqQueueModule( );
 builder.Services.AddRedisModule( );
 builder.Services.AddSqlServerModule( builder.Configuration.GetConnectionString( "Main" ) );
 

@@ -7,6 +7,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Itens de Solução", "Itens
 	ProjectSection(SolutionItems) = preProject
 		docker-compose.yml = docker-compose.yml
 		README.md = README.md
+		Tests.png = Tests.png
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Src", "Src", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
@@ -31,8 +32,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "envolti.lib.order.applicati
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "envolti.lib.data.sqlserver", "src\adapters\driven\envolti.lib.data.sqlserver\envolti.lib.data.sqlserver.csproj", "{C49A1B0F-A1FB-4F77-B801-B5FFEBC88553}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "envolti.api.order.driving", "src\adapters\driving\envolti.api.order.driving\envolti.api.order.driving.csproj", "{F8B14987-B93F-4681-A868-E48D39B47BE9}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "envolti.lib.rabbitmq.adapter", "src\adapters\driven\envolti.lib.rabbitmq.adapter\envolti.lib.rabbitmq.adapter.csproj", "{6E1AADE4-D703-47DE-8433-217EB11C63E9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "envolti.lib.redis.adapter", "src\adapters\driven\envolti.lib.redis.adapter\envolti.lib.redis.adapter.csproj", "{E4C09F91-7C81-4B53-B85F-AF0B2C9DA711}"
@@ -46,7 +45,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "K6", "K6", "{5A75A430-F770-
 		tests\Performance\K6\test.js = tests\Performance\K6\test.js
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "envolti.service.order.driving", "src\adapters\driving\envolti.service.order.driving\envolti.service.order.driving.csproj", "{D767A7AA-AD03-4120-908C-DF12EA969933}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "envolti.api.order.written.driving", "src\adapters\driving\envolti.api.order.written.driving\envolti.api.order.written.driving.csproj", "{B6AFB590-50C2-F51D-5F1F-AD16E81FBDAF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "envolti.service.order.written.driving", "src\adapters\driving\envolti.service.order.written.driving\envolti.service.order.written.driving.csproj", "{8A2DAF86-BD7F-22E9-8080-D8E0B35DB70A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -66,10 +67,6 @@ Global
 		{C49A1B0F-A1FB-4F77-B801-B5FFEBC88553}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C49A1B0F-A1FB-4F77-B801-B5FFEBC88553}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C49A1B0F-A1FB-4F77-B801-B5FFEBC88553}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F8B14987-B93F-4681-A868-E48D39B47BE9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F8B14987-B93F-4681-A868-E48D39B47BE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F8B14987-B93F-4681-A868-E48D39B47BE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F8B14987-B93F-4681-A868-E48D39B47BE9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6E1AADE4-D703-47DE-8433-217EB11C63E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6E1AADE4-D703-47DE-8433-217EB11C63E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6E1AADE4-D703-47DE-8433-217EB11C63E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -82,10 +79,14 @@ Global
 		{AAC88AD0-B7C0-4FE0-985F-74C5D56A5DFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AAC88AD0-B7C0-4FE0-985F-74C5D56A5DFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AAC88AD0-B7C0-4FE0-985F-74C5D56A5DFE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D767A7AA-AD03-4120-908C-DF12EA969933}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D767A7AA-AD03-4120-908C-DF12EA969933}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D767A7AA-AD03-4120-908C-DF12EA969933}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D767A7AA-AD03-4120-908C-DF12EA969933}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B6AFB590-50C2-F51D-5F1F-AD16E81FBDAF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6AFB590-50C2-F51D-5F1F-AD16E81FBDAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6AFB590-50C2-F51D-5F1F-AD16E81FBDAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6AFB590-50C2-F51D-5F1F-AD16E81FBDAF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A2DAF86-BD7F-22E9-8080-D8E0B35DB70A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A2DAF86-BD7F-22E9-8080-D8E0B35DB70A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A2DAF86-BD7F-22E9-8080-D8E0B35DB70A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A2DAF86-BD7F-22E9-8080-D8E0B35DB70A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -100,13 +101,13 @@ Global
 		{5FB7E62F-E0BC-4348-846B-DB6FD34535E3} = {1FAC5AB8-154B-4077-89EB-DB60945E70DE}
 		{83D6C233-D580-4CC3-857B-0671BDD3815D} = {1E12F385-661A-4150-983A-5BBFB6FF8349}
 		{C49A1B0F-A1FB-4F77-B801-B5FFEBC88553} = {BAB5AB66-484D-4AE0-9D3F-451BD4B95AF5}
-		{F8B14987-B93F-4681-A868-E48D39B47BE9} = {5033FA06-1A62-405F-B583-01ADDFB40566}
 		{6E1AADE4-D703-47DE-8433-217EB11C63E9} = {BAB5AB66-484D-4AE0-9D3F-451BD4B95AF5}
 		{E4C09F91-7C81-4B53-B85F-AF0B2C9DA711} = {BAB5AB66-484D-4AE0-9D3F-451BD4B95AF5}
 		{AAC88AD0-B7C0-4FE0-985F-74C5D56A5DFE} = {5033FA06-1A62-405F-B583-01ADDFB40566}
 		{2C9C74FB-7636-40D9-ADEB-B9247A1B2F24} = {ACFC96FA-93D0-49BD-BD30-C2DB3B6C6F9A}
 		{5A75A430-F770-4504-AA85-63C9AA7F7217} = {2C9C74FB-7636-40D9-ADEB-B9247A1B2F24}
-		{D767A7AA-AD03-4120-908C-DF12EA969933} = {5033FA06-1A62-405F-B583-01ADDFB40566}
+		{B6AFB590-50C2-F51D-5F1F-AD16E81FBDAF} = {5033FA06-1A62-405F-B583-01ADDFB40566}
+		{8A2DAF86-BD7F-22E9-8080-D8E0B35DB70A} = {5033FA06-1A62-405F-B583-01ADDFB40566}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1DAE5A64-E6ED-44C0-ADED-B544D5542C66}

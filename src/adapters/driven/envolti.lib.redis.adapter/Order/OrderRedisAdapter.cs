@@ -102,7 +102,7 @@ namespace envolti.lib.redis.adapter.Order
         {
             await EnsureInitializedAsync( );
 
-            string json = JsonConvert.SerializeObject( value );            
+            string json = JsonConvert.SerializeObject( value );
 
             var result = await _Redis.ExecuteAsync( "JSON.ARRAPPEND", key, "$.items", json );
 

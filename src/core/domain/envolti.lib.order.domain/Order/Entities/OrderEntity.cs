@@ -19,7 +19,7 @@ namespace envolti.lib.order.domain.Order.Entities
         {
             if ( await order.OrderExistsAsync( OrderIdExternal ) )
             {
-                throw new TheOrderNumberCannotBeRepeatedException( );
+                Console.WriteLine( "O objeto já existe no banco de dados!" );
             }
         }
 
@@ -60,7 +60,7 @@ namespace envolti.lib.order.domain.Order.Entities
 
         public async Task Save( IOrderRepository order )
         {
-            //await ValidateState( order );
+            await ValidateState( order );
 
             if ( Id == 0 )
             {

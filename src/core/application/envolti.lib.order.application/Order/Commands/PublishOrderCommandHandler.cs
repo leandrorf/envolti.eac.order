@@ -27,7 +27,7 @@ namespace envolti.lib.order.application.Order.Commands
 
                 return new OrderResponse
                 {
-                    Data = null,
+                    Data = OrderQueuesAdapter.MapToDto( order ),
                     Success = true,
                     Message = "Registration request successful."
                 };

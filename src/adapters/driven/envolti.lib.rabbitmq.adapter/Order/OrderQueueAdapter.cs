@@ -6,7 +6,6 @@ using RabbitMQ.Client.Events;
 using System.Diagnostics;
 using System.Text;
 
-
 namespace envolti.lib.rabbitmq.adapter.Order
 {
     public class OrderQueueAdapter : IOrderQueuesAdapter, IAsyncDisposable
@@ -28,7 +27,7 @@ namespace envolti.lib.rabbitmq.adapter.Order
             }
 
             int retryCount = 5;
-            int delayMilliseconds = 2000;
+            int delayMilliseconds = 20000;
 
             for ( int i = 0; i < retryCount; i++ )
             {
@@ -39,14 +38,16 @@ namespace envolti.lib.rabbitmq.adapter.Order
                         var factory = new ConnectionFactory
                         {
                             HostName = "localhost",
-                            RequestedHeartbeat = TimeSpan.FromSeconds( 30 )
+                            RequestedHeartbeat = TimeSpan.FromSeconds( 30 ),
+                            NetworkRecoveryInterval = TimeSpan.FromSeconds( 10 )
                         };
 
                         _Connection = await factory.CreateConnectionAsync( );
-                        _Channel = await _Connection.CreateChannelAsync( );
+                        _Channel = await _Connection.CreateChannelAsync(
+                            new CreateChannelOptions( true, true )
+                        );
                     }
 
-                    // Ensure _Channel is not null after initialization
                     if ( _Channel == null )
                     {
                         throw new InvalidOperationException( "Failed to initialize RabbitMQ channel." );
@@ -56,29 +57,46 @@ namespace envolti.lib.rabbitmq.adapter.Order
                 }
                 catch ( Exception ex )
                 {
-                    Console.WriteLine( $"Erro ao inicializar RabbitMQ (tentativa {i + 1}): {ex.Message}" );
+                    Console.WriteLine( $"Error initializing RabbitMQ (attempt {i + 1}): {ex.Message}" );
                     await Task.Delay( delayMilliseconds );
                 }
             }
 
-            throw new Exception( "Falha ao conectar ao RabbitMQ após múltiplas tentativas." );
+            throw new Exception( "Failed to connect to RabbitMQ after multiple attempts." );
         }
 
         private async Task EnsureInitializedAsync( string queueName )
         {
-            await _initTask.Value;
+            try
+            {
+                await _initTask.Value;
 
-            await _Channel.QueueDeclareAsync(
-                queue: queueName,
-                durable: true,
-                exclusive: false,
-                autoDelete: false,
-                arguments: null
-            );
+                await _Channel.QueueDeclareAsync(
+                    queue: queueName,
+                    durable: true,
+                    exclusive: false,
+                    autoDelete: false,
+                    arguments: null
+                );
+
+                await _Channel.BasicQosAsync( 0, 1, false );
+            }
+            catch ( Exception ex )
+            {
+                Console.WriteLine( "RabbitMq initialization failed." );
+
+                await DisposeAsync( );
+                await Task.Delay( 5000 );
+                await InitAsync( );
+                await EnsureInitializedAsync( queueName );
+            }
         }
 
         public async Task ConsumerOrderAsync( string queueName, Func<OrderRequestDto, Task> processOrderCallback, CancellationToken stoppingToken )
         {
+            int countMessage = 0;
+            int intervalDelay = 1000;
+
             await EnsureInitializedAsync( queueName );
 
             var consumer = new AsyncEventingBasicConsumer( _Channel );
@@ -106,6 +124,14 @@ namespace envolti.lib.rabbitmq.adapter.Order
 
                 stopwatch.Stop( );
                 Console.WriteLine( $"Tempo total do processamento do pedido: {stopwatch.ElapsedMilliseconds} ms" );
+
+                countMessage++;
+
+                if ( countMessage % intervalDelay == 0 )
+                {
+                    Console.WriteLine( "Delay intencional após processar múltiplas mensagens..." );
+                    await Task.Delay( 10000 );
+                }
             };
 
             await _Channel.BasicConsumeAsync(
@@ -126,12 +152,12 @@ namespace envolti.lib.rabbitmq.adapter.Order
         {
             await EnsureInitializedAsync( queueName );
 
-            // Verifica se a conexão está ativa
-            if ( _Channel == null || !_Channel.IsOpen )
-            {
-                Console.WriteLine( "Canal não está aberto. Tentando reconectar..." );
-                await InitAsync( );
-            }
+            //// Verifica se a conexão está ativa
+            //if ( _Channel == null || !_Channel.IsOpen )
+            //{
+            //    Console.WriteLine( "Canal não está aberto. Tentando reconectar..." );
+            //    await InitAsync( );
+            //}
 
             try
             {
@@ -203,6 +229,7 @@ namespace envolti.lib.rabbitmq.adapter.Order
                 if ( _Connection == null || !_Connection.IsOpen || _Channel == null || !_Channel.IsOpen )
                 {
                     Console.WriteLine( "Conexão perdida. Tentando reconectar..." );
+                    await Task.Delay( 30000, stoppingToken );
                     await InitAsync( );
                 }
 

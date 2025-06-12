@@ -3,6 +3,7 @@ using envolti.lib.order.domain.Order.Entities;
 using envolti.lib.order.domain.Order.Enums;
 using envolti.lib.order.domain.Order.Exceptions;
 using envolti.lib.order.domain.Order.Ports;
+using System.Runtime.CompilerServices;
 
 namespace envolti.lib.order.domain.Order.Adapters
 {
@@ -14,6 +15,21 @@ namespace envolti.lib.order.domain.Order.Adapters
             {
                 throw new TheOrderNumberCannotBeRepeatedException( );
             }
+        }
+
+        public static OrderResponseDto MapToDto( OrderQueuesAdapter dto )
+        {
+            return new OrderResponseDto
+            {
+                OrderIdExternal = dto.OrderIdExternal,
+                Products = dto.Products.Select( x => new OrderResponseDto.Produtos
+                {
+                    Id = x.Id,
+                    ProductIdExternal = x.ProductIdExternal,
+                    Name = x.Name,
+                    Price = x.Price
+                } ).ToList( )
+            };
         }
 
         public static OrderQueuesAdapter MapToAdapter( OrderRequestDto dto )

@@ -22,6 +22,30 @@ docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 --restart=always rabbi
 docker run -d --name redis --restart=always -p 6379:6379 redis
 ```
 
+### Grafana
+```
+docker run -d -p 3000:3000 --name=grafana grafana/grafana-oss
+```
+
+### Loki
+```
+docker run -d --name=loki `
+  -v C:\dev\docker\loki-stack\loki-config.yaml:/mnt/config/loki-config.yaml `
+  -p 3100:3100 `
+  grafana/loki:3.4.1 `
+  --config.file=/mnt/config/loki-config.yaml
+```
+
+### Promtail
+```
+docker run -d --name=promtail `
+  -v C:\dev\docker\loki-stack\promtail-config.yaml:/mnt/config/promtail-config.yaml `
+  -v C:\dev\docker\loki-stack\temp:/var/log `
+  --link loki `
+  grafana/promtail:3.4.1 `
+  --config.file=/mnt/config/promtail-config.yaml
+```
+
 ## Configurações
 
 ### Configuração do SqlServer

@@ -1,5 +1,8 @@
 ﻿using envolti.lib.order.domain.Order.Dtos;
 using envolti.lib.order.domain.Order.Ports;
+using envolti.lib.order.domain.Order.Settings;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -13,14 +16,22 @@ namespace envolti.lib.rabbitmq.adapter.Order
         private IConnection _Connection = null!;
         private IChannel _Channel = null!;
         private readonly Lazy<Task> _initTask;
+        private readonly IOptions<RabbitMqSettings> _Settings;
+        private readonly ILogger<OrderQueueAdapter> _Logger;
+        private static readonly SemaphoreSlim _semaphore = new( 1, 1 );
 
-        public OrderQueueAdapter( )
+
+        public OrderQueueAdapter( ILogger<OrderQueueAdapter> logger, IOptions<RabbitMqSettings> settings )
         {
             _initTask = new Lazy<Task>( InitAsync );
+            _Logger = logger ?? throw new ArgumentNullException( nameof( logger ) );
+            _Settings = settings ?? throw new ArgumentNullException( nameof( settings ) );
         }
 
         public async Task InitAsync( )
         {
+            _Logger.LogInformation( "Iniciado serviço do RabbitMQ" );
+
             if ( _Channel != null && _Channel.IsOpen )
             {
                 return;
@@ -37,7 +48,7 @@ namespace envolti.lib.rabbitmq.adapter.Order
                     {
                         var factory = new ConnectionFactory
                         {
-                            HostName = "localhost",
+                            HostName = _Settings.Value.Host,
                             RequestedHeartbeat = TimeSpan.FromSeconds( 30 ),
                             NetworkRecoveryInterval = TimeSpan.FromSeconds( 10 )
                         };
@@ -50,6 +61,7 @@ namespace envolti.lib.rabbitmq.adapter.Order
 
                     if ( _Channel == null )
                     {
+                        _Logger.LogError( "Falha ao criar o canal RabbitMQ." );
                         throw new InvalidOperationException( "Failed to initialize RabbitMQ channel." );
                     }
 
@@ -57,19 +69,28 @@ namespace envolti.lib.rabbitmq.adapter.Order
                 }
                 catch ( Exception ex )
                 {
-                    Console.WriteLine( $"Error initializing RabbitMQ (attempt {i + 1}): {ex.Message}" );
+                    _Logger.LogError( ex, $"Erro ao conectar ao RabbitMQ (tentativa {i + 1}): {ex.Message}" );
                     await Task.Delay( delayMilliseconds );
                 }
             }
 
+            _Logger.LogError( "Falha ao conectar ao RabbitMQ após várias tentativas." );
             throw new Exception( "Failed to connect to RabbitMQ after multiple attempts." );
         }
 
         private async Task EnsureInitializedAsync( string queueName )
         {
+            await _semaphore.WaitAsync( );
+
             try
             {
                 await _initTask.Value;
+
+                if ( _Channel == null || !_Channel.IsOpen )
+                {
+                    _Logger.LogError( "Canal RabbitMQ não está aberto." );
+                    return;
+                }
 
                 await _Channel.QueueDeclareAsync(
                     queue: queueName,
@@ -83,13 +104,15 @@ namespace envolti.lib.rabbitmq.adapter.Order
             }
             catch ( Exception ex )
             {
+                _Logger.LogError( ex, "Erro ao garantir a inicialização do RabbitMQ." );
                 Console.WriteLine( "RabbitMq initialization failed." );
 
                 await DisposeAsync( );
-                await Task.Delay( 5000 );
-                await InitAsync( );
-                await EnsureInitializedAsync( queueName );
+
+                throw new InvalidOperationException( $"Erro ao inicializar fila {queueName}", ex );
             }
+
+            _semaphore.Release( );
         }
 
         public async Task ConsumerOrderAsync( string queueName, Func<OrderRequestDto, Task> processOrderCallback, CancellationToken stoppingToken )
@@ -118,19 +141,20 @@ namespace envolti.lib.rabbitmq.adapter.Order
                 }
                 catch ( Exception ex )
                 {
-                    Console.WriteLine( $"Erro ao processar mensagem: {ex.Message}" );
+                    _Logger.LogError( ex, $"Erro ao processar mensagem: {ex.Message}" );
                     await _Channel.BasicNackAsync( ea.DeliveryTag, false, true );
                 }
 
                 stopwatch.Stop( );
-                Console.WriteLine( $"Tempo total do processamento do pedido: {stopwatch.ElapsedMilliseconds} ms" );
+
+                _Logger.LogInformation( $"Tempo total do processamento do pedido: {stopwatch.ElapsedMilliseconds} ms" );
 
                 countMessage++;
 
                 if ( countMessage % intervalDelay == 0 )
                 {
-                    Console.WriteLine( "Delay intencional após processar múltiplas mensagens..." );
-                    await Task.Delay( 10000 );
+                    _Logger.LogInformation( $"Processadas {countMessage} mensagens. Aguardando {intervalDelay} ms antes de continuar..." );
+                    await Task.Delay( 1000 );
                 }
             };
 
@@ -144,20 +168,13 @@ namespace envolti.lib.rabbitmq.adapter.Order
 
             while ( !stoppingToken.IsCancellationRequested )
             {
-                await Task.Delay( 60000, stoppingToken );
+                await Task.Delay( 10000, stoppingToken );
             }
         }
 
         public async Task<OrderRequestDto> PublishOrderAsync( OrderRequestDto order, string queueName )
         {
             await EnsureInitializedAsync( queueName );
-
-            //// Verifica se a conexão está ativa
-            //if ( _Channel == null || !_Channel.IsOpen )
-            //{
-            //    Console.WriteLine( "Canal não está aberto. Tentando reconectar..." );
-            //    await InitAsync( );
-            //}
 
             try
             {
@@ -176,14 +193,14 @@ namespace envolti.lib.rabbitmq.adapter.Order
                     cancellationToken: CancellationToken.None
                 );
 
-                Console.WriteLine( $"Pedido publicado na fila '{queueName}' com sucesso!" );
+                _Logger.LogInformation( $"Pedido {order.OrderIdExternal} publicado na fila '{queueName}'. Request Body: {order}", order );
 
                 return order;
             }
             catch ( Exception ex )
             {
-                Console.WriteLine( $"Erro ao publicar na fila '{queueName}': {ex.Message}" );
-                throw;
+                _Logger.LogError( ex, $"Erro ao publicar na fila '{queueName}': {ex.Message}" );
+                throw new Exception( $"Failed to publish message to queue '{queueName}': {ex.Message}", ex );
             }
         }
 
@@ -206,7 +223,7 @@ namespace envolti.lib.rabbitmq.adapter.Order
 
             if ( _Channel == null || !_Channel.IsOpen )
             {
-                Console.WriteLine( "Canal não está aberto. Retornando falso." );
+                _Logger.LogWarning( "Canal não está aberto. Retornando falso." );
                 return false;
             }
 
@@ -217,7 +234,7 @@ namespace envolti.lib.rabbitmq.adapter.Order
                 return true;
             }
 
-            Console.WriteLine( "O objeto já existe na fila." );
+            _Logger.LogInformation( $"O objeto com CorrelationId {correlationId} não existe na fila '{queueName}'." );
 
             return false;
         }
@@ -228,7 +245,7 @@ namespace envolti.lib.rabbitmq.adapter.Order
             {
                 if ( _Connection == null || !_Connection.IsOpen || _Channel == null || !_Channel.IsOpen )
                 {
-                    Console.WriteLine( "Conexão perdida. Tentando reconectar..." );
+                    _Logger.LogWarning( "Conexão ou canal RabbitMQ não está aberto. Tentando reconectar..." );
                     await Task.Delay( 30000, stoppingToken );
                     await InitAsync( );
                 }
@@ -239,6 +256,7 @@ namespace envolti.lib.rabbitmq.adapter.Order
 
         public async ValueTask DisposeAsync( )
         {
+            _Logger.LogInformation( "Fechando conexão RabbitMQ..." );
             await CloseConnectionAsync( );
         }
     }

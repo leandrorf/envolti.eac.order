@@ -34,7 +34,6 @@ namespace envolti.service.order.driving
                     _Logger.LogInformation( "Worker running at: {time}", DateTimeOffset.Now );
                 }
 
-                // Process orders asynchronously, do not await here to allow parallel processing
                 _ = Task.Run( async ( ) =>
                 {
                     await _OrderQueueAdapter.ConsumerOrderAsync(
@@ -49,13 +48,13 @@ namespace envolti.service.order.driving
                     ).ConfigureAwait( false );
                 }, stoppingToken );
 
-                await Task.Delay( 20000, stoppingToken ).ConfigureAwait( false );
+                await Task.Delay( 300, stoppingToken ).ConfigureAwait( false );
             }
         }
 
         public override async Task<Task> StopAsync( CancellationToken stoppingToken )
         {
-            //await _OrderQueueAdapter.CloseConnectionAsync( ).ConfigureAwait( false );
+            await _OrderQueueAdapter.CloseConnectionAsync( ).ConfigureAwait( false );
             return Task.CompletedTask;
         }
     }

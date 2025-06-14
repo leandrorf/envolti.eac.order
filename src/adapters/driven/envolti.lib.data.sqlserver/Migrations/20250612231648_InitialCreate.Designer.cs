@@ -12,7 +12,7 @@ using envolti.lib.data.sqlserver;
 namespace envolti.lib.data.sqlserver.Migrations
 {
     [DbContext(typeof(SqlServerDbContext))]
-    [Migration("20250609001126_InitialCreate")]
+    [Migration("20250612231648_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />

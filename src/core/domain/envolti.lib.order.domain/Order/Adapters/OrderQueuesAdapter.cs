@@ -3,7 +3,6 @@ using envolti.lib.order.domain.Order.Entities;
 using envolti.lib.order.domain.Order.Enums;
 using envolti.lib.order.domain.Order.Exceptions;
 using envolti.lib.order.domain.Order.Ports;
-using System.Runtime.CompilerServices;
 
 namespace envolti.lib.order.domain.Order.Adapters
 {

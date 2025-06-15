@@ -1,47 +1,26 @@
 version: '3.8'
 
+networks:
+  minha_rede:
+    driver: bridge
+
 services:
-  order-reading-api:
+  order-written-api:
+    container_name: order-written-api
     build:
       context: .
-      dockerfile: src/adapters/driving/envolti.api.order.reading.driving/Dockerfile
+      dockerfile: src/adapters/driving/envolti.api.order.written.driving/Dockerfile
     ports:
       - "8080:8080"
       - "8081:8081"
-    # environment:
-      # ASPNETCORE_ENVIRONMENT: Development
-      # ConnectionStrings__DefaultConnection: "Server=sqlserver;Database=OrderDb;User=sa;Password=L3@ndr0rf;"
-      # RabbitMQ__HostName: "rabbitmq"
-      # RabbitMQ__UserName: "guest"
-      # RabbitMQ__Password: "guest"
-      # Redis__Host: "redis"
-      # Redis__Port: "6379"
     depends_on:
-      - sqlserver
-      - rabbitmq
-      - redis
-
-  order-api:
-    build:
-      context: .
-      dockerfile: src/adapters/driving/envolti.api.order.driving/Dockerfile
-    ports:
-      - "8090:8080"
-      - "8091:8081"
-    # environment:
-      # ASPNETCORE_ENVIRONMENT: Development
-      # ConnectionStrings__DefaultConnection: "Server=sqlserver;Database=OrderDb;User=sa;Password=L3@ndr0rf;"
-      # RabbitMQ__HostName: "rabbitmq"
-      # RabbitMQ__UserName: "guest"
-      # RabbitMQ__Password: "guest"
-      # Redis__Host: "redis"
-      # Redis__Port: "6379"
-    depends_on:
-      - sqlserver
-      - rabbitmq
-      - redis
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - minha_rede
 
   sqlserver:
+    container_name: sqlserver
     image: mcr.microsoft.com/mssql/server:2025-latest
     environment:
       SA_PASSWORD: "L3@ndr0rf"
@@ -50,8 +29,11 @@ services:
       - "1433:1433"
     volumes:
       - sqlserver_data:/var/opt/mssql
+    networks:
+      - minha_rede
 
   rabbitmq:
+    container_name: rabbitmq
     image: rabbitmq:3-management
     ports:
       - "5672:5672"
@@ -59,11 +41,61 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: "guest"
       RABBITMQ_DEFAULT_PASS: "guest"
+    networks:
+      - minha_rede
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   redis:
-    image: redis:7
+    image: redis
+    container_name: redis
+    restart: always
     ports:
       - "6379:6379"
+    networks:
+      - minha_rede
+
+  loki:
+    image: grafana/loki:3.4.1
+    container_name: loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./config/loki-config.yaml:/mnt/config/loki-config.yaml
+    command:
+      - "--config.file=/mnt/config/loki-config.yaml"
+    networks:
+      - minha_rede
+
+  promtail:
+    image: grafana/promtail:3.4.1
+    container_name: promtail
+    depends_on:
+      - loki
+    volumes:
+      - ./config/promtail-config.yaml:/mnt/config/promtail-config.yaml
+      - ./config/temp:/var/log
+    command:
+      - "--config.file=/mnt/config/promtail-config.yaml"    
+    networks:
+      - minha_rede
+
+  grafana:
+    image: grafana/grafana-oss
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - loki
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - minha_rede
 
 volumes:
   sqlserver_data:
+  grafana_data:
+  loki_data:

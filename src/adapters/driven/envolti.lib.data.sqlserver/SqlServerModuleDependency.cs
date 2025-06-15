@@ -10,7 +10,7 @@ namespace envolti.lib.data.sqlserver
         public static void AddSqlServerModule( this IServiceCollection services, string connectionString )
         {
             services.AddDbContext<SqlServerDbContext>(
-                options => options.UseSqlServer(connectionString, providerOptions =>
+                options => options.UseSqlServer( connectionString, providerOptions =>
                 {
                     providerOptions.EnableRetryOnFailure( );
 

@@ -1,6 +1,5 @@
 ﻿using envolti.lib.order.domain.Order.Dtos;
 using envolti.lib.order.domain.Order.Enums;
-using envolti.lib.order.domain.Order.Exceptions;
 using envolti.lib.order.domain.Order.Ports;
 
 namespace envolti.lib.order.domain.Order.Entities

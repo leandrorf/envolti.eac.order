@@ -1,4 +1,7 @@
 ﻿using envolti.lib.order.domain.Order.Ports;
+using envolti.lib.order.domain.Order.Settings;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using StackExchange.Redis;
 
@@ -8,11 +11,15 @@ namespace envolti.lib.redis.adapter.Order
     {
         private IDatabase _Redis = null!;
         private readonly Lazy<Task> _initTask;
+        private readonly IOptions<RedisSettings> _Settings;
+        private readonly ILogger<OrderRedisAdapter> _Logger;
 
-        public OrderRedisAdapter( )
+        public OrderRedisAdapter( ILogger<OrderRedisAdapter> logger, IOptions<RedisSettings> settings )
         {
             _initTask = new Lazy<Task>( InitAsync );
             Task.Run( ( ) => MonitorConnectionAsync( CancellationToken.None ) );
+            _Logger = logger ?? throw new ArgumentNullException( nameof( logger ) );
+            _Settings = settings ?? throw new ArgumentNullException( nameof( settings ) );
         }
 
         public async Task InitAsync( )
@@ -29,7 +36,7 @@ namespace envolti.lib.redis.adapter.Order
             {
                 try
                 {
-                    var redis = await ConnectionMultiplexer.ConnectAsync( "localhost" );
+                    var redis = await ConnectionMultiplexer.ConnectAsync( _Settings.Value.Host );
                     _Redis = redis.GetDatabase( );
 
                     await CreateKeyAsync( );

@@ -1,28 +1,21 @@
-# See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
-
-# This stage is used when running from VS in fast mode (Default for Debug configuration)
-FROM mcr.microsoft.com/dotnet/runtime:8.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 USER $APP_UID
 WORKDIR /app
 
-
-# This stage is used to build the service project
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["src/adapters/driving/envolti.service.order.driving/envolti.service.order.driving.csproj", "src/adapters/driving/envolti.service.order.driving/"]
-RUN dotnet restore "./src/adapters/driving/envolti.service.order.driving/envolti.service.order.driving.csproj"
+COPY ["src/adapters/driving/envolti.service.order.written.driving/envolti.service.order.written.driving.csproj", "src/adapters/driving/envolti.service.order.written.driving/"]
+RUN dotnet restore "./src/adapters/driving/envolti.service.order.written.driving/envolti.service.order.written.driving.csproj"
 COPY . .
-WORKDIR "/src/src/adapters/driving/envolti.service.order.driving"
-RUN dotnet build "./envolti.service.order.driving.csproj" -c $BUILD_CONFIGURATION -o /app/build
+WORKDIR "/src/src/adapters/driving/envolti.service.order.written.driving"
+RUN dotnet build "./envolti.service.order.written.driving.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
-# This stage is used to publish the service project to be copied to the final stage
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./envolti.service.order.driving.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./envolti.service.order.written.driving.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
-# This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "envolti.service.order.driving.dll"]
+ENTRYPOINT ["dotnet", "envolti.service.order.written.driving.dll"]

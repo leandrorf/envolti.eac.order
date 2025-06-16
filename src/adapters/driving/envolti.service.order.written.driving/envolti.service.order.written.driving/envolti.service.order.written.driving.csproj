@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>dotnet-envolti.service.order.driving-83dbd5dd-3d29-42bf-b5f7-2bd1ac81e99c</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerfileContext>..\..\..\..</DockerfileContext>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.5">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.5">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1-Preview.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\core\application\envolti.lib.order.application\envolti.lib.order.application.csproj" />
+    <ProjectReference Include="..\..\..\..\core\domain\envolti.lib.order.domain\envolti.lib.order.domain.csproj" />
+    <ProjectReference Include="..\..\..\driven\envolti.lib.data.sqlserver\envolti.lib.data.sqlserver.csproj" />
+    <ProjectReference Include="..\..\..\driven\envolti.lib.rabbitmq.adapter\envolti.lib.rabbitmq.adapter.csproj" />
+    <ProjectReference Include="..\..\..\driven\envolti.lib.redis.adapter\envolti.lib.redis.adapter.csproj" />
+  </ItemGroup>
+</Project>

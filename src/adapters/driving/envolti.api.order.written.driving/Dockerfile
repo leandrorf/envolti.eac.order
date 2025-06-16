@@ -1,8 +1,6 @@
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 USER $APP_UID
 WORKDIR /app
-EXPOSE 8080
-EXPOSE 8081
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
@@ -20,4 +18,9 @@ RUN dotnet publish "./envolti.api.order.written.driving.csproj" -c $BUILD_CONFIG
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+
+# Instala ping e curl no estágio final
+USER root
+RUN apt-get update && apt-get install -y iputils-ping curl
+
 ENTRYPOINT ["dotnet", "envolti.api.order.written.driving.dll"]

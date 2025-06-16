@@ -16,7 +16,7 @@ builder.Services.AddMediatR( cfg =>
 
 builder.Services.AddApplicationModule( );
 builder.Services.AddRedisModule( );
-builder.Services.AddSqlServerModule( builder.Configuration.GetConnectionString( "Main" ) );
+builder.Services.AddSqlServerModule( builder.Configuration.GetConnectionString( "Default" ) );
 
 var app = builder.Build( );
 

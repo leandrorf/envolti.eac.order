@@ -48,7 +48,7 @@ namespace envolti.service.order.driving
                     ).ConfigureAwait( false );
                 }, stoppingToken );
 
-                await Task.Delay( 300, stoppingToken ).ConfigureAwait( false );
+                await Task.Delay( 5000, stoppingToken ).ConfigureAwait( false );
             }
         }
 

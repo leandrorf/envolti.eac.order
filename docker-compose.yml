@@ -19,6 +19,20 @@ services:
     networks:
       - minha_rede
 
+  order-written-service:
+    container_name: order-written-service
+    build:
+      context: .
+      dockerfile: src/adapters/driving/envolti.service.order.written.driving/Dockerfile
+    ports:
+      - "8082:8082"
+      - "8083:8083"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - minha_rede
+
   sqlserver:
     container_name: sqlserver
     image: mcr.microsoft.com/mssql/server:2025-latest
@@ -26,7 +40,7 @@ services:
       SA_PASSWORD: "L3@ndr0rf"
       ACCEPT_EULA: "Y"
     ports:
-      - "1433:1433"
+      - "0.0.0.0:1433:1433"
     volumes:
       - sqlserver_data:/var/opt/mssql
     networks:
@@ -36,8 +50,8 @@ services:
     container_name: rabbitmq
     image: rabbitmq:3-management
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "0.0.0.0:5672:5672"
+      - "0.0.0.0:15672:15672"
     environment:
       RABBITMQ_DEFAULT_USER: "guest"
       RABBITMQ_DEFAULT_PASS: "guest"
@@ -54,7 +68,7 @@ services:
     container_name: redis
     restart: always
     ports:
-      - "6379:6379"
+      - "0.0.0.0:6379:6379"
     networks:
       - minha_rede
 

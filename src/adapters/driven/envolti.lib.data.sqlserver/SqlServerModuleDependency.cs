@@ -13,20 +13,8 @@ namespace envolti.lib.data.sqlserver
                 options => options.UseSqlServer( connectionString, providerOptions =>
                 {
                     providerOptions.EnableRetryOnFailure( );
-
-                }
-                //connectionString,
-                //sqlOptions =>
-                //{
-                //    sqlOptions.EnableRetryOnFailure(
-                //        maxRetryCount: 5,
-                //        maxRetryDelay: TimeSpan.FromSeconds( 5 ),
-                //        errorNumbersToAdd: null );
-                //    sqlOptions.ExecutionStrategy( context => new CustomSqlExecutionStrategy( context ) );
-                //    sqlOptions.MigrationsAssembly( "envolti.lib.data.sqlserver" );
-                //    sqlOptions.CommandTimeout( 60 );
-                //}
-                )
+                    providerOptions.MigrationsAssembly( "envolti.service.order.written.driving" );
+                } )
             );
 
             services.AddScoped<IOrderRepository, OrderRepository>( );

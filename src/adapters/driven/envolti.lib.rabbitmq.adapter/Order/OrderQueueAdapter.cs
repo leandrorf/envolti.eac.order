@@ -20,7 +20,6 @@ namespace envolti.lib.rabbitmq.adapter.Order
         private readonly ILogger<OrderQueueAdapter> _Logger;
         private static readonly SemaphoreSlim _semaphore = new( 1, 1 );
 
-
         public OrderQueueAdapter( ILogger<OrderQueueAdapter> logger, IOptions<RabbitMqSettings> settings )
         {
             _initTask = new Lazy<Task>( InitAsync );

@@ -1,5 +1,6 @@
 ﻿using envolti.lib.order.domain.Order.Dtos;
 using envolti.lib.order.domain.Order.Enums;
+using envolti.lib.order.domain.Order.Exceptions;
 using envolti.lib.order.domain.Order.Ports;
 
 namespace envolti.lib.order.domain.Order.Entities
@@ -18,7 +19,7 @@ namespace envolti.lib.order.domain.Order.Entities
         {
             if ( await order.OrderExistsAsync( OrderIdExternal ) )
             {
-                Console.WriteLine( "O objeto já existe no banco de dados!" );
+                throw new TheOrderNumberCannotBeRepeatedException( );
             }
         }
 

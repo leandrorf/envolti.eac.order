@@ -36,6 +36,9 @@ namespace envolti.lib.redis.adapter.Order
             {
                 try
                 {
+                    _Logger.LogInformation( "Conectando ao Redis. Tentativa {Attempt}", i + 1 );
+                    _Logger.LogInformation( "Host: {Host}", _Settings.Value.Host );
+
                     var redis = await ConnectionMultiplexer.ConnectAsync( _Settings.Value.Host );
                     _Redis = redis.GetDatabase( );
 
@@ -44,11 +47,12 @@ namespace envolti.lib.redis.adapter.Order
                 }
                 catch ( Exception ex )
                 {
-                    Console.WriteLine( $"Erro ao inicializar Redis (tentativa {i + 1}): {ex.Message}" );
+                    _Logger.LogError( ex, "Erro ao conectar ao Redis. Tentativa {Attempt}", i + 1 );
                     await Task.Delay( delayMilliseconds );
                 }
             }
 
+            _Logger.LogError( "Falha ao conectar ao Redis após múltiplas tentativas." );
             throw new Exception( "Falha ao conectar ao Redis após múltiplas tentativas." );
         }
 
@@ -60,8 +64,8 @@ namespace envolti.lib.redis.adapter.Order
             }
             catch ( Exception ex )
             {
-                Console.WriteLine( $"Erro ao inicializar Redis: {ex.Message}" );
-                throw;
+                _Logger.LogError( ex, "Erro ao inicializar Redis: {Message}", ex.Message );
+                throw new Exception( ex.Message );
             }
         }
 
@@ -80,7 +84,7 @@ namespace envolti.lib.redis.adapter.Order
 
             if ( _Redis?.Multiplexer == null || !_Redis.Multiplexer.IsConnected )
             {
-                Console.WriteLine( "Redis não está conectado. Retornando valor padrão." );
+                _Logger.LogWarning( "Redis não está conectado. Retornando valor padrão." );
                 return default;
             }
 
@@ -129,7 +133,7 @@ namespace envolti.lib.redis.adapter.Order
                 return values.Length > 0 && Convert.ToInt32( values[ 0 ] ) > 0;
             }
 
-            Console.WriteLine( $"Erro: Tipo inesperado no retorno do Redis: {result.Resp2Type}" );
+            _Logger.LogError( $"Tipo inesperado no retorno do Redis: {result.Resp2Type}" );
             return false;
         }
 
@@ -143,7 +147,7 @@ namespace envolti.lib.redis.adapter.Order
                 }
                 catch ( Exception ex )
                 {
-                    Console.WriteLine( $"Erro ao fechar conexão com Redis: {ex.Message}" );
+                    _Logger.LogError( ex, "Erro ao fechar conexão com Redis: {Message}", ex.Message );
                 }
             }
 
@@ -155,7 +159,7 @@ namespace envolti.lib.redis.adapter.Order
             {
                 if ( _Redis?.Multiplexer == null || !_Redis.Multiplexer.IsConnected )
                 {
-                    Console.WriteLine( "Conexão com Redis perdida. Tentando reconectar..." );
+                    _Logger.LogWarning( "Conexão com Redis perdida. Tentando reconectar..." );
                     await InitAsync( );
                 }
 

@@ -24,12 +24,27 @@ services:
     build:
       context: .
       dockerfile: src/adapters/driving/envolti.service.order.written.driving/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Production"
     ports:
       - "8082:8082"
       - "8083:8083"
     depends_on:
       rabbitmq:
         condition: service_healthy
+    networks:
+      - minha_rede
+
+  order-reading-api:
+    container_name: order-reading-api
+    build:
+      context: .
+      dockerfile: src/adapters/driving/envolti.api.order.reading.driving/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Production"
+    ports:
+      - "0.0.0.0:8084:8084"
+      - "0.0.0.0:8085:8085"
     networks:
       - minha_rede
 
@@ -90,6 +105,7 @@ services:
     depends_on:
       - loki
     volumes:
+      - loki_data:/loki
       - ./config/promtail-config.yaml:/mnt/config/promtail-config.yaml
       - ./config/temp:/var/log
     command:
@@ -106,6 +122,7 @@ services:
       - loki
     volumes:
       - grafana_data:/var/lib/grafana
+      - ./config/grafana/provisioning:/etc/grafana/provisioning
     networks:
       - minha_rede
 

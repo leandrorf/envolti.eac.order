@@ -14,9 +14,24 @@ builder.Services.AddMediatR( cfg =>
     cfg.RegisterServicesFromAssembly( Assembly.GetExecutingAssembly( ) )
 );
 
-builder.Services.AddApplicationModule( );
+builder.AddApplicationModule( );
 builder.Services.AddRedisModule( );
 builder.Services.AddSqlServerModule( builder.Configuration.GetConnectionString( "Default" ) );
+
+var corsPolicyName = "AllowAllOrigins"; // Você pode dar outro nome
+
+builder.Services.AddCors( options =>
+{
+    options.AddPolicy( name: corsPolicyName,
+        policy =>
+        {
+            policy.AllowAnyOrigin( )
+                  .AllowAnyMethod( )
+                  .AllowAnyHeader( );
+        } );
+} );
+
+builder.WebHost.UseUrls( "http://*:8084" );
 
 var app = builder.Build( );
 
@@ -28,6 +43,8 @@ if ( app.Environment.IsDevelopment( ) )
 }
 
 app.UseHttpsRedirection( );
+
+app.UseCors( corsPolicyName );
 
 app.UseAuthorization( );
 

@@ -53,7 +53,7 @@ namespace envolti.lib.order.application
 
             if ( sqlServerSettings != null )
             {
-                builder.Services.Configure<SqlServerSettigns>( sqlServerSettings );
+                builder.Services.Configure<SqlServerSettings>( sqlServerSettings );
             }
 
             var lokiUrl = builder.Configuration.GetSection( "Services:LokiUrl" ).Value;

@@ -1,5 +1,9 @@
+using envolti.lib.order.application.Order.Responses;
 using envolti.lib.order.domain.Order.Adapters;
+using envolti.lib.order.domain.Order.Enums;
+using envolti.lib.order.domain.Order.Exceptions;
 using envolti.lib.order.domain.Order.Ports;
+using System.Text.Json;
 
 namespace envolti.service.order.driving
 {
@@ -40,9 +44,34 @@ namespace envolti.service.order.driving
                         "order_queue",
                         async ( order ) =>
                         {
-                            var orderEntity = OrderQueuesAdapter.MapToEntity( order );
-                            await orderEntity.Save( orderRepository ).ConfigureAwait( false );
-                            await _OrderRedisAdapter.PublishOrderAsync( "orders", orderEntity.MapEntityToDto( ) ).ConfigureAwait( false );
+                            try
+                            {
+                                var orderEntity = OrderQueuesAdapter.MapToEntity( order );
+                                await orderEntity.Save( orderRepository ).ConfigureAwait( false );
+                                await _OrderRedisAdapter.PublishOrderAsync( "orders", orderEntity.MapEntityToDto( ) ).ConfigureAwait( false );
+                            }
+                            catch ( TheOrderNumberCannotBeRepeatedException )
+                            {
+                                var result = new OrderResponse
+                                {
+                                    Data = null,
+                                    Success = false,
+                                    Message = "The order number cannot be repeated.",
+                                    ErrorCode = ErrorCodesResponseEnum.THE_ORDER_NUMBER_CANNOT_BE_REPEATED
+                                };
+
+                                var jsonResult = JsonSerializer.Serialize( result, new JsonSerializerOptions
+                                {
+                                    WriteIndented = true
+                                } );
+
+                                _Logger.LogError( $"The order number cannot be repeated: {jsonResult}");
+                            }
+                            catch ( Exception ex )
+                            {
+                                _Logger.LogError( ex, "An error occurred while processing the order." );
+                            }
+                            
                         },
                         stoppingToken
                     ).ConfigureAwait( false );

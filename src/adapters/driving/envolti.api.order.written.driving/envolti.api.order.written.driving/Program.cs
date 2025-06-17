@@ -1,7 +1,21 @@
 using envolti.lib.order.application;
 using envolti.lib.rabbitmq.adapter;
+using System;
 
-var builder = WebApplication.CreateBuilder( args );
+//var builder = WebApplication.CreateBuilder( args );
+
+var environment = Environment.GetEnvironmentVariable( "ASPNETCORE_ENVIRONMENT" ) ?? "Production";
+
+var builder = WebApplication.CreateBuilder( new WebApplicationOptions
+{
+    EnvironmentName = environment
+} );
+
+builder.Configuration
+    .SetBasePath( Directory.GetCurrentDirectory( ) )
+    .AddJsonFile( "appsettings.json", optional: false, reloadOnChange: true )
+    .AddJsonFile( $"appsettings.{environment}.json", optional: true, reloadOnChange: true )
+    .AddEnvironmentVariables( );
 
 builder.Services.AddControllers( );
 builder.Services.AddEndpointsApiExplorer( );

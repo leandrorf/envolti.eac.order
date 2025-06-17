@@ -13,7 +13,7 @@ namespace envolti.lib.data.sqlserver
                 options => options.UseSqlServer( connectionString, providerOptions =>
                 {
                     providerOptions.EnableRetryOnFailure( );
-                    providerOptions.MigrationsAssembly( "envolti.service.order.written.driving" );
+                    providerOptions.MigrationsAssembly( "envolti.lib.data.sqlserver" );
                 } )
             );
 

@@ -5,10 +5,10 @@ WORKDIR /app
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["src/adapters/driving/envolti.api.order.written.driving/envolti.api.order.written.driving.csproj", "src/adapters/driving/envolti.api.order.written.driving/"]
-RUN dotnet restore "./src/adapters/driving/envolti.api.order.written.driving/envolti.api.order.written.driving.csproj"
+COPY ["src/adapters/driving/envolti.api.order.written.driving/envolti.api.order.written.driving/envolti.api.order.written.driving.csproj", "src/adapters/driving/envolti.api.order.written.driving/envolti.api.order.written.driving/"]
+RUN dotnet restore "./src/adapters/driving/envolti.api.order.written.driving/envolti.api.order.written.driving/envolti.api.order.written.driving.csproj"
 COPY . .
-WORKDIR "/src/src/adapters/driving/envolti.api.order.written.driving"
+WORKDIR "/src/src/adapters/driving/envolti.api.order.written.driving/envolti.api.order.written.driving/"
 RUN dotnet build "./envolti.api.order.written.driving.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
@@ -19,7 +19,6 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 
-# Instala ping e curl no estágio final
 USER root
 RUN apt-get update && apt-get install -y iputils-ping curl
 

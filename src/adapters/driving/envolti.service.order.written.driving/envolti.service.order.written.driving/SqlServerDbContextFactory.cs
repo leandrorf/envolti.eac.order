@@ -24,7 +24,7 @@ namespace envolti.service.order.written.driving
             var loggerFactory = LoggerFactory.Create( builder => builder.AddConsole( ) );
             var logger = loggerFactory.CreateLogger<SqlServerDbContext>( );
 
-            var settings = Options.Create( new SqlServerSettigns
+            var settings = Options.Create( new SqlServerSettings
             {
                 Default = "Server=localhost;User ID=SA;Password=L3@ndr0rf;Database=OrderManagemnt;TrustServerCertificate=True;"
             } );

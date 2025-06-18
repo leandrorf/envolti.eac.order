@@ -13,10 +13,12 @@ namespace envolti.api.order.driving.Controllers
     public class OrdersController : ControllerBase
     {
         private readonly IMediator _Mediator;
+        private readonly ILogger<OrdersController> _Logger;
 
-        public OrdersController( IMediator mediator )
+        public OrdersController( IMediator mediator, ILogger<OrdersController> logger )
         {
             _Mediator = mediator;
+            _Logger = logger;
         }
 
         [HttpPost]
@@ -34,15 +36,18 @@ namespace envolti.api.order.driving.Controllers
             if ( res.Success )
             {
                 stopwatch.Stop( );
+                _Logger.LogInformation( "Order processed successfully." );
                 Console.WriteLine( $"Tempo total da requisição: {stopwatch.ElapsedMilliseconds} ms" );
 
                 return Ok( res.Data );
             }
             else if ( res.ErrorCode == ErrorCodesResponseEnum.THE_ORDER_NUMBER_CANNOT_BE_REPEATED )
             {
+                _Logger.LogWarning( "The order number cannot be repeated." );
                 return Conflict( res );
             }
 
+            _Logger.LogError( "An unexpected error occurred: {Message}", res.Message );
             return BadRequest( res );
         }
     }

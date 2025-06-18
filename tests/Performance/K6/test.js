@@ -45,7 +45,8 @@ export default function () {
         }
     };
 
-    let res = http.post('https://localhost:7137/api/Orders', payload, params);
+    let res = http.post('http://localhost:8080/api/Orders', payload, params);
+    // let res = http.post('https://localhost:7137/api/Orders', payload, params);
 
     check(res, {
         'status is 200': (r) => r.status === 200

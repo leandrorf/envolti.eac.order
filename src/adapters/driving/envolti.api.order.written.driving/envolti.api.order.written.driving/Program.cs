@@ -1,6 +1,5 @@
 using envolti.lib.order.application;
 using envolti.lib.rabbitmq.adapter;
-using System;
 
 //var builder = WebApplication.CreateBuilder( args );
 

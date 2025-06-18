@@ -42,6 +42,16 @@ namespace envolti.lib.order.application.Order.Commands
                     ErrorCode = ErrorCodesResponseEnum.THE_ORDER_NUMBER_CANNOT_BE_REPEATED
                 };
             }
+            catch ( Exception ex )
+            {
+                return new OrderResponse
+                {
+                    Data = null,
+                    Success = false,
+                    Message = $"An unexpected error occurred: {ex.Message}",
+                    ErrorCode = ErrorCodesResponseEnum.UNIDENTIFIED_ERROR
+                };
+            }
         }
     }
 }

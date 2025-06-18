@@ -17,7 +17,7 @@ namespace envolti.lib.data.sqlserver
 
         public SqlServerDbContext( DbContextOptions<SqlServerDbContext> options, ILogger<SqlServerDbContext> logger, IOptions<SqlServerSettings> settings )
             : base( options )
-        {            
+        {
             _Settings = settings ?? throw new ArgumentNullException( nameof( settings ) );
             _Logger = logger ?? throw new ArgumentNullException( nameof( logger ) );
         }

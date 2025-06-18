@@ -1,7 +1,6 @@
 ﻿using envolti.lib.order.domain.Order.Ports;
 using envolti.lib.order.domain.Order.Settings;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Serilog.Sinks.Grafana.Loki;

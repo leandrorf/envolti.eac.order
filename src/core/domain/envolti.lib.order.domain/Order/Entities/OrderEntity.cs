@@ -60,7 +60,7 @@ namespace envolti.lib.order.domain.Order.Entities
 
         public async Task Save( IOrderRepository order )
         {
-            await ValidateState( order );
+            //await ValidateState( order );
 
             if ( Id == 0 )
             {

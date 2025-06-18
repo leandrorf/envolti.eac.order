@@ -102,4 +102,10 @@ dotnet ef database update --project ..\..\driven\envolti.lib.data.sqlserver
 
 ### Exemplo de performance
 
+Rodar 200 mil requisições por dia (ou ~2,3 requisições por segundo em média)
+
 ![Sou uma imagem](Tests.png)
+
+### Desenho da Arquitetura
+
+![Sou uma imagem](Arquitetura.jpg)

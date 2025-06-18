@@ -26,8 +26,9 @@ docker-compose up -d
 
 ## Executar os projetos
 
-* envolti.api.order.driving
 * envolti.api.order.reading.driving
+* envolti.api.order.written.driving
+* envolti.service.order.written.driving
 
 ## Instruções de uso
 

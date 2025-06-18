@@ -45,7 +45,30 @@ docker-compose up -d
 
 ### Exemplo de requisição GET
 ```
-Adicionar o response
+{
+    "orderIdExternal": 7000000,
+    "totalPrice": 185.48,
+    "createdAt": "2025-06-18T19:51:47.4055155+00:00",
+    "processedIn": "2025-06-18T19:51:47.4062668+00:00",
+    "status": 1,
+    "products": [
+        {
+            "productIdExternal": 1354,
+            "name": "Produto 1",
+            "price": 15.9
+        },
+        {
+            "productIdExternal": 6599,
+            "name": "Produto 2",
+            "price": 102.99
+        },
+        {
+            "productIdExternal": 5536,
+            "name": "Produto 3",
+            "price": 66.59
+        }
+    ]
+}
 ```
 
 ### Exemplo de requisição POST

@@ -3,61 +3,26 @@
 # Eac
 Engineering, Architecture and Construction
 
-# Preparando ambiente
+# Sobre o ambiente ambiente
+
+O ambiente utiliza recursos externos como ferramentas para auxiliar no proprosito da aplicação sendo eles:
+
+- RabbitMQ
+- Redis
+- Grafana
+- Loki
+- Promtail
+- SqlServer
 
 ## Ambiente docker
 
-### SqlSever
+### Docker-compose
 ```
-docker run -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=L3@ndr0rf" -p 1433:1433 --name sqlServer --hostname sqlServer -d mcr.microsoft.com/mssql/server:2025-latest
-```
-
-### RabbitMQ
-```
-docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 --restart=always rabbitmq:3-management
+docker-compose up -d
 ```
 
-### Redis
-```
-docker run -d --name redis --restart=always -p 6379:6379 redis
-```
-
-### Grafana
-```
-docker run -d -p 3000:3000 --name=grafana grafana/grafana-oss
-```
-
-### Loki
-```
-docker run -d --name=loki `
-  -v C:\dev\docker\loki-stack\loki-config.yaml:/mnt/config/loki-config.yaml `
-  -p 3100:3100 `
-  grafana/loki:3.4.1 `
-  --config.file=/mnt/config/loki-config.yaml
-```
-
-### Promtail
-```
-docker run -d --name=promtail `
-  -v C:\dev\docker\loki-stack\promtail-config.yaml:/mnt/config/promtail-config.yaml `
-  -v C:\dev\docker\loki-stack\temp:/var/log `
-  --link loki `
-  grafana/promtail:3.4.1 `
-  --config.file=/mnt/config/promtail-config.yaml
-```
-
-## Configurações
-
-### Configuração do SqlServer
-
-*Acessar o caminho:*
-envolti.eac.order\src\adapters\driving\envolti.api.order.driving
-
-Executar os comandos:
-```
-dotnet ef migrations add InitialCreate --project ..\..\driven\envolti.lib.data.sqlserver
-dotnet ef database update --project ..\..\driven\envolti.lib.data.sqlserver
-```
+> [!NOTE]
+> A estrutura do banco de dados executa automaticamente a [Migration].
 
 ## Executar os projetos
 
@@ -65,6 +30,23 @@ dotnet ef database update --project ..\..\driven\envolti.lib.data.sqlserver
 * envolti.api.order.reading.driving
 
 ## Instruções de uso
+
+### Exemplo de requisição GET
+```
+  Obter todos os pedidos
+  http://localhost:8084/api/order/getall
+
+  Obter pedidos filtrando por status
+  http://localhost:8084/api/order/GetByStatus
+
+  Obter pedido filtrando por Id
+  http://localhost:8084/api/order/PEDIDOID
+```
+
+### Exemplo de requisição GET
+```
+Adicionar o response
+```
 
 ### Exemplo de requisição POST
 ```

@@ -4,14 +4,9 @@ using envolti.lib.order.domain.Order.Settings;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-using System.Data.Common;
-using System.Diagnostics;
-using System.Runtime;
 using System.Text;
-using System.Threading.Channels;
 
 namespace envolti.lib.rabbitmq.adapter.Order
 {
@@ -23,8 +18,6 @@ namespace envolti.lib.rabbitmq.adapter.Order
         private readonly SemaphoreSlim _Lock = new( 1, 1 );
         private readonly IOptions<RabbitMqSettings> _Settings;
         private readonly ILogger<OrderQueueAdapter> _Logger;
-        private bool _IsConsuming;
-
 
         public OrderQueueAdapter( ILogger<OrderQueueAdapter> logger, IOptions<RabbitMqSettings> settings )
         {
@@ -38,7 +31,9 @@ namespace envolti.lib.rabbitmq.adapter.Order
             try
             {
                 if ( _Channel != null && _Channel.IsOpen )
+                {
                     return;
+                }
 
                 var factory = new ConnectionFactory
                 {
@@ -57,16 +52,17 @@ namespace envolti.lib.rabbitmq.adapter.Order
             }
         }
 
-        public async Task ConsumerOrderAsync( string queueName, Func<OrderRequestDto, Task> processOrderCallback, CancellationToken stoppingToken )
+        public async Task ConsumerOrderAsync( string queueName, CancellationToken stoppingToken, Func<OrderRequestDto, Task> processOrderCallback )
         {
             await EnsureInitializedAsync( queueName );
 
             _Consumer = new AsyncEventingBasicConsumer( _Channel );
             _Consumer.ReceivedAsync += async ( _, ea ) =>
             {
+                var message = Encoding.UTF8.GetString( ea.Body.ToArray( ) );
+
                 try
                 {
-                    var message = Encoding.UTF8.GetString( ea.Body.ToArray( ) );
                     var order = JsonConvert.DeserializeObject<OrderRequestDto>( message );
 
                     if ( order != null )
@@ -77,15 +73,12 @@ namespace envolti.lib.rabbitmq.adapter.Order
                 }
                 catch ( Exception ex )
                 {
-                    _Logger.LogError( ex, "Erro ao processar a mensagem" );
+                    _Logger.LogError( ex, $"Erro ao processar a mensagem: {message}" );
                     await _Channel.BasicNackAsync( ea.DeliveryTag, false, true );
                 }
             };
 
             await _Channel.BasicConsumeAsync( queue: queueName, autoAck: false, consumer: _Consumer );
-            _IsConsuming = true;
-
-            _ = Task.Run( ( ) => MonitorConnectionAsync( queueName, processOrderCallback, stoppingToken ), stoppingToken );
         }
 
         public async Task<OrderRequestDto> PublishOrderAsync( OrderRequestDto order, string queueName )
@@ -153,27 +146,6 @@ namespace envolti.lib.rabbitmq.adapter.Order
             _Logger.LogInformation( $"O objeto com CorrelationId {correlationId} não existe na fila '{queueName}'." );
 
             return false;
-        }
-
-        private async Task MonitorConnectionAsync( string queueName, Func<OrderRequestDto, Task> processOrderCallback, CancellationToken token )
-        {
-            while ( !token.IsCancellationRequested )
-            {
-                if ( !_Connection.IsOpen || !_Channel.IsOpen )
-                {
-                    _Logger.LogWarning( "Conexão perdida. Tentando reiniciar consumidor..." );
-                    await DisposeAsync( );
-                    await EnsureInitializedAsync( queueName );
-
-                    if ( !_IsConsuming )
-                    {
-                        _Logger.LogInformation( "Reiniciando consumo..." );
-                        await ConsumerOrderAsync( queueName, processOrderCallback, token );
-                    }
-                }
-
-                await Task.Delay( TimeSpan.FromSeconds( 10 ), token );
-            }
         }
 
         public async ValueTask DisposeAsync( )

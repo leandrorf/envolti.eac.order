@@ -12,7 +12,7 @@ O ambiente utiliza recursos externos como ferramentas para auxiliar no proprosit
 - Grafana
 - Loki
 - Promtail
-- SqlServer
+- MongoDb
 
 ## Ambiente docker
 
@@ -98,8 +98,7 @@ docker-compose up -d
 
 ### Tempo de requisição POST
 
-- Tempo total da requisições do envio do pedido: 83 ms
-- Tempo total do processamento do pedido: 24 ms
+![Processamento de pedidos](processamento-pedidos.png)
 
 ### Tempo de requisição GET
 - Tempo total da requisições por status dos pedidos: 3 ms

@@ -13,7 +13,6 @@ namespace envolti.lib.order.domain.Order.Adapters
                 OrderIdExternal = dto.OrderIdExternal,
                 Products = dto.Products.Select( p => new OrderRequestDto.Produtos
                 {
-                    Id = 0, // Assuming Id is not set initially
                     ProductIdExternal = p.ProductIdExternal,
                     Name = p.Name,
                     Price = p.Price

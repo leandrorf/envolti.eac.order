@@ -1,4 +1,4 @@
-using envolti.lib.data.sqlserver;
+using envolti.lib.data.mongodb;
 using envolti.lib.order.application;
 using envolti.lib.redis.adapter;
 using System.Reflection;
@@ -16,7 +16,8 @@ builder.Services.AddMediatR( cfg =>
 
 builder.AddApplicationModule( );
 builder.Services.AddRedisModule( );
-builder.Services.AddSqlServerModule( builder.Configuration.GetConnectionString( "Default" ) );
+builder.Services.AddMongoDbModule( );
+//builder.Services.AddSqlServerModule( builder.Configuration.GetConnectionString( "Default" ) );
 
 var corsPolicyName = "AllowAllOrigins"; // Você pode dar outro nome
 

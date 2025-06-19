@@ -38,7 +38,11 @@ namespace envolti.lib.order.application
 
             var rabbitMqSettings = builder.Configuration.GetSection( "Services:RabbitMQ" );
             var redisSettings = builder.Configuration.GetSection( "Services:Redis" );
-            var sqlServerSettings = builder.Configuration.GetSection( "ConnectionStrings" );
+            //var sqlServerSettings = builder.Configuration.GetSection( "ConnectionStrings" );
+
+            var mongoSettings = builder.Configuration.GetSection( "MongoSettings" );
+
+            builder.Services.Configure<MongoSettings>( builder.Configuration.GetSection( "MongoSettings" ) );
 
             if ( rabbitMqSettings != null )
             {
@@ -50,10 +54,15 @@ namespace envolti.lib.order.application
                 builder.Services.Configure<RedisSettings>( redisSettings );
             }
 
-            if ( sqlServerSettings != null )
+            if ( mongoSettings != null )
             {
-                builder.Services.Configure<SqlServerSettings>( sqlServerSettings );
+                builder.Services.Configure<MongoSettings>( mongoSettings );
             }
+
+            //if ( sqlServerSettings != null )
+            //{
+            //    builder.Services.Configure<SqlServerSettings>( sqlServerSettings );
+            //}
 
             var lokiUrl = builder.Configuration.GetSection( "Services:LokiUrl" ).Value;
             var applicationName = builder.Configuration.GetSection( "ApplicationName" ).Value;

@@ -1,9 +1,14 @@
-﻿namespace envolti.lib.order.domain.Order.Entities
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+
+namespace envolti.lib.order.domain.Order.Entities
 {
     public class ProductEntity
     {
-        public int Id { get; set; }
-        public int OrderId { get; set; } // Foreign key to OrderEntity
+        [BsonId]
+        [BsonRepresentation( BsonType.ObjectId )]
+        public string Id { get; set; }
+        public int OrderId { get; set; }
         public int ProductIdExternal { get; set; }
         public string Name { get; set; } = string.Empty;
         public decimal Price { get; set; }

@@ -2,12 +2,16 @@
 using envolti.lib.order.domain.Order.Enums;
 using envolti.lib.order.domain.Order.Exceptions;
 using envolti.lib.order.domain.Order.Ports;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace envolti.lib.order.domain.Order.Entities
 {
     public class OrderEntity
     {
-        public int Id { get; set; } = 0;
+        [BsonId]
+        [BsonRepresentation( BsonType.ObjectId )]
+        public string Id { get; set; }
         public int OrderIdExternal { get; set; }
         public decimal TotalPrice { get; set; }
         public DateTime CreatedAt { get; set; }
@@ -60,9 +64,9 @@ namespace envolti.lib.order.domain.Order.Entities
 
         public async Task Save( IOrderRepository order )
         {
-            //await ValidateState( order );
+            await ValidateState( order );
 
-            if ( Id == 0 )
+            if ( Id == null )
             {
                 ProcessOrders( );
 

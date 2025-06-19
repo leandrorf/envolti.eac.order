@@ -1,5 +1,5 @@
 import http from 'k6/http';
-import { check } from 'k6';
+import { check, sleep } from 'k6';
 import { Counter } from 'k6/metrics';
 import exec from 'k6/execution';
 
@@ -15,7 +15,7 @@ export let options = {
 };
 
 export default function () {
-    let orderId = Math.floor((Date.now() % 2147483647) + (__VU * 1000) + Math.random() * 1000);
+    let orderId = (__VU * 1000000) + __ITER;
     orderCounter.add(1);
 
     let payload = JSON.stringify({
@@ -51,4 +51,6 @@ export default function () {
     check(res, {
         'status is 200': (r) => r.status === 200
     });
+
+    sleep(0.1);
 }

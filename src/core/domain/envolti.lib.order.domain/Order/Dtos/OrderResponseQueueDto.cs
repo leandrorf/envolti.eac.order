@@ -1,36 +1,31 @@
 ﻿using envolti.lib.order.domain.Order.Entities;
-using envolti.lib.order.domain.Order.Enums;
-using System.Text.Json.Serialization;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace envolti.lib.order.domain.Order.Dtos
 {
-    public class OrderResponseDto
+    public class OrderResponseQueueDto
     {
-        public string Id { get; set; }
         public required int OrderIdExternal { get; set; }
-        public decimal TotalPrice { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime ProcessedIn { get; set; }
-        public StatusEnum Status { get; set; }
         public required List<Produtos> Products { get; set; } = new( );
 
         public class Produtos
         {
-            public string Id { get; set; }
             public required int ProductIdExternal { get; set; }
             public required string Name { get; set; }
             public required decimal Price { get; set; }
         }
 
-        public static OrderResponseDto MapToDto( OrderEntity order )
+        public static OrderResponseQueueDto MapToDto( OrderRequestDto order )
         {
-            return new OrderResponseDto
+            return new OrderResponseQueueDto
             {
-                Id = order.Id,
                 OrderIdExternal = order.OrderIdExternal,
                 Products = order.Products.Select( p => new Produtos
                 {
-                    Id = p.Id,
                     ProductIdExternal = p.ProductIdExternal,
                     Name = p.Name,
                     Price = p.Price

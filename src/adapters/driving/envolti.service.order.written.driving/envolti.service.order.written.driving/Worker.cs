@@ -3,6 +3,7 @@ using envolti.lib.order.domain.Order.Adapters;
 using envolti.lib.order.domain.Order.Enums;
 using envolti.lib.order.domain.Order.Exceptions;
 using envolti.lib.order.domain.Order.Ports;
+using System.Diagnostics;
 using System.Text.Json;
 
 namespace envolti.service.order.driving
@@ -28,51 +29,56 @@ namespace envolti.service.order.driving
 
         protected override async Task ExecuteAsync( CancellationToken stoppingToken )
         {
+            Stopwatch stopwatch = new Stopwatch( );
+
+            _Logger.LogInformation( "Worker iniciado em: {time}", DateTimeOffset.Now );
+
             await using var scope = _ServiceProvider.CreateAsyncScope( );
             var orderRepository = scope.ServiceProvider.GetRequiredService<IOrderRepository>( );
 
-            if ( _Logger.IsEnabled( LogLevel.Information ) )
+            while ( !stoppingToken.IsCancellationRequested )
             {
-                _Logger.LogInformation( "Worker running at: {time}", DateTimeOffset.Now );
-            }
-
-            await _OrderQueueAdapter.ConsumerOrderAsync(
-                "order_queue",
-                async ( order ) =>
+                if ( _Logger.IsEnabled( LogLevel.Information ) )
                 {
-                    try
+                    _Logger.LogInformation( "Worker running at: {time}", DateTimeOffset.Now );
+                }
+
+                await _OrderQueueAdapter.ConsumerOrderAsync( "order_queue", stoppingToken,
+                    async ( order ) =>
                     {
-                        var orderEntity = OrderQueuesAdapter.MapToEntity( order );
-                        await orderEntity.Save( orderRepository );
-                        await _OrderRedisAdapter.PublishOrderAsync( "orders", orderEntity.MapEntityToDto( ) );
-                    }
-                    catch ( TheOrderNumberCannotBeRepeatedException )
-                    {
-                        var result = new OrderResponse
+                        try
                         {
-                            Data = null,
-                            Success = false,
-                            Message = "The order number cannot be repeated.",
-                            ErrorCode = ErrorCodesResponseEnum.THE_ORDER_NUMBER_CANNOT_BE_REPEATED
-                        };
+                            stopwatch.Restart( );
 
-                        var jsonResult = JsonSerializer.Serialize( result, new JsonSerializerOptions
+                            var orderEntity = OrderQueuesAdapter.MapToEntity( order );
+                            await orderEntity.Save( orderRepository );
+                            await _OrderRedisAdapter.PublishOrderAsync( "orders", orderEntity.MapEntityToDto( ) );
+
+                            stopwatch.Stop( );
+
+                            _Logger.LogInformation( $"Pedido {order.OrderIdExternal} processado com sucesso. Tempo gasto: {stopwatch.ElapsedMilliseconds} ms" );
+                        }
+                        catch ( TheOrderNumberCannotBeRepeatedException )
                         {
-                            WriteIndented = true
-                        } );
-
-                        _Logger.LogError( $"The order number cannot be repeated: {jsonResult}" );
+                            var result = new OrderResponse
+                            {
+                                Data = null,
+                                Success = false,
+                                Message = "The order number cannot be repeated.",
+                                ErrorCode = ErrorCodesResponseEnum.THE_ORDER_NUMBER_CANNOT_BE_REPEATED
+                            };
+                            var jsonResult = JsonSerializer.Serialize( result, new JsonSerializerOptions { WriteIndented = true } );
+                            _Logger.LogError( $"Pedido duplicado: {jsonResult}" );
+                        }
+                        catch ( Exception ex )
+                        {
+                            _Logger.LogError( ex, "Erro ao processar o pedido." );
+                        }
                     }
-                    catch ( Exception ex )
-                    {
-                        _Logger.LogError( ex, "An error occurred while processing the order." );
-                    }
+                );
 
-                },
-                stoppingToken
-            );
-
-            await Task.Delay( 300, stoppingToken );
+                await Task.Delay( 1000, stoppingToken );
+            }
         }
 
         public override async Task<Task> StopAsync( CancellationToken stoppingToken )

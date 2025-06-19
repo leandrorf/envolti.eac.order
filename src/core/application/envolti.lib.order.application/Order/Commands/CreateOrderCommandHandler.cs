@@ -25,8 +25,6 @@ namespace envolti.lib.order.application.Order.Commands
 
                 await order.Save( _OrderRepository );
 
-                orderDto.Id = order.Id;
-
                 return new OrderResponse
                 {
                     Data = order.MapEntityToDto( ),

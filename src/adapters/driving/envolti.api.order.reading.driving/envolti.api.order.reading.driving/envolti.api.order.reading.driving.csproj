@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\core\application\envolti.lib.order.application\envolti.lib.order.application.csproj" />
+    <ProjectReference Include="..\..\..\driven\envolti.lib.data.mongodb\envolti.lib.data.mongodb.csproj" />
     <ProjectReference Include="..\..\..\driven\envolti.lib.data.sqlserver\envolti.lib.data.sqlserver.csproj" />
     <ProjectReference Include="..\..\..\driven\envolti.lib.redis.adapter\envolti.lib.redis.adapter.csproj" />
   </ItemGroup>

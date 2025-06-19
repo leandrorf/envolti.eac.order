@@ -16,29 +16,13 @@ namespace envolti.lib.order.domain.Order.Adapters
             }
         }
 
-        public static OrderResponseDto MapToDto( OrderQueuesAdapter dto )
-        {
-            return new OrderResponseDto
-            {
-                OrderIdExternal = dto.OrderIdExternal,
-                Products = dto.Products.Select( x => new OrderResponseDto.Produtos
-                {
-                    Id = x.Id,
-                    ProductIdExternal = x.ProductIdExternal,
-                    Name = x.Name,
-                    Price = x.Price
-                } ).ToList( )
-            };
-        }
-
         public static OrderQueuesAdapter MapToAdapter( OrderRequestDto dto )
         {
             return new OrderQueuesAdapter
             {
                 OrderIdExternal = dto.OrderIdExternal,
-                Products = dto.Products.Select( p => new OrderRequestDto.Produtos
+                Products = dto.Products.Select( p => new Produtos
                 {
-                    Id = 0,
                     ProductIdExternal = p.ProductIdExternal,
                     Name = p.Name,
                     Price = p.Price
@@ -63,15 +47,24 @@ namespace envolti.lib.order.domain.Order.Adapters
             };
         }
 
+        public OrderResponseQueueDto MapAdapterToDto( )
+        {
+            return new OrderResponseQueueDto
+            {
+                OrderIdExternal = OrderIdExternal,
+                Products = Products.Select( x => new OrderResponseQueueDto.Produtos
+                {
+                    ProductIdExternal = x.ProductIdExternal,
+                    Name = x.Name,
+                    Price = x.Price
+                } ).ToList( )
+            };
+        }
+
         public async Task Save( IOrderQueuesAdapter orderAdapter )
         {
             await ValidateState( orderAdapter );
-
-            if ( Id == 0 )
-            {
-                var resp = await orderAdapter.PublishOrderAsync( this, "order_queue" );
-                Id = resp.Id;
-            }
+            var resp = await orderAdapter.PublishOrderAsync( this, "order_queue" );
         }
     }
 }

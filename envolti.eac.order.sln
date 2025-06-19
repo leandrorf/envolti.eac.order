@@ -49,6 +49,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "envolti.api.order.written.d
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "envolti.api.order.reading.driving", "src\adapters\driving\envolti.api.order.reading.driving\envolti.api.order.reading.driving\envolti.api.order.reading.driving.csproj", "{E9A2FE1F-9AF7-4BF5-64EE-C2AE79440264}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "envolti.lib.data.mongodb", "src\adapters\driven\envolti.lib.data.mongodb\envolti.lib.data.mongodb.csproj", "{178E5D0B-D841-475F-B720-A9396C39C3CD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -87,6 +89,10 @@ Global
 		{E9A2FE1F-9AF7-4BF5-64EE-C2AE79440264}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E9A2FE1F-9AF7-4BF5-64EE-C2AE79440264}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E9A2FE1F-9AF7-4BF5-64EE-C2AE79440264}.Release|Any CPU.Build.0 = Release|Any CPU
+		{178E5D0B-D841-475F-B720-A9396C39C3CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{178E5D0B-D841-475F-B720-A9396C39C3CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{178E5D0B-D841-475F-B720-A9396C39C3CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{178E5D0B-D841-475F-B720-A9396C39C3CD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -108,6 +114,7 @@ Global
 		{CC0728D6-5042-2BEB-787B-197005226568} = {5033FA06-1A62-405F-B583-01ADDFB40566}
 		{8833A395-B197-7E16-1357-FEC60FD79DFA} = {5033FA06-1A62-405F-B583-01ADDFB40566}
 		{E9A2FE1F-9AF7-4BF5-64EE-C2AE79440264} = {5033FA06-1A62-405F-B583-01ADDFB40566}
+		{178E5D0B-D841-475F-B720-A9396C39C3CD} = {BAB5AB66-484D-4AE0-9D3F-451BD4B95AF5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1DAE5A64-E6ED-44C0-ADED-B544D5542C66}

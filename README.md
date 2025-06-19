@@ -109,6 +109,9 @@ docker-compose up -d
 
 Rodar 200 mil requisições por dia (ou ~2,3 requisições por segundo em média)
 
+- Tempo total de requisições: 2.087 segundos (34 × 60 + 47 = 2.087 segundos)
+- Tempo médio de requisição: 10,4 ms (2087 segundos ÷ 200.000 requisições ≈ 0,0104 segundos por requisição)
+
 ![Sou uma imagem](Tests.png)
 
 ### Desenho da Arquitetura

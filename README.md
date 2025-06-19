@@ -98,7 +98,7 @@ docker-compose up -d
 
 ### Tempo de requisição POST
 
-![Processamento de pedidos](processamento-pedidos.png)
+- Tempo total da requisição: 1 ms
 
 ### Tempo de requisição GET
 - Tempo total da requisições por status dos pedidos: 3 ms
@@ -113,6 +113,21 @@ Rodar 200 mil requisições por dia (ou ~2,3 requisições por segundo em média
 - Tempo médio de requisição: 10,4 ms (2087 segundos ÷ 200.000 requisições ≈ 0,0104 segundos por requisição)
 
 ![Sou uma imagem](Tests.png)
+
+### Tempo de processamento de pedidos
+
+- Primeiro, calculamos o tempo total entre 15:11:54 e 17:04:27:
+- Isso dá 1 hora, 52 minutos e 33 segundos.
+- Convertendo tudo para segundos:
+1 hora = 3600 s
+52 minutos = 3120 s
+33 segundos = 33 s
+Total = 3600 + 3120 + 33 = 6753 segundos
+- Agora dividimos o tempo total pelo número de execuções:
+( 6753 ÷ 200.000 = 0,033765 ) segundos por execução
+Ou seja, cada execução levou em média aproximadamente 0,0338 segundos, ou cerca de 33,8 milissegundos.
+
+![Processamento de pedidos](processamento-pedidos.png)
 
 ### Desenho da Arquitetura
 

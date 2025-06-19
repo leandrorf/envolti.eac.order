@@ -36,7 +36,7 @@ namespace envolti.api.order.driving.Controllers
             if ( res.Success )
             {
                 stopwatch.Stop( );
-                _Logger.LogInformation( "Order processed successfully." );
+                _Logger.LogInformation( $"Tempo total da requisição: {stopwatch.ElapsedMilliseconds} ms" );
                 Console.WriteLine( $"Tempo total da requisição: {stopwatch.ElapsedMilliseconds} ms" );
 
                 return Ok( res.Data );

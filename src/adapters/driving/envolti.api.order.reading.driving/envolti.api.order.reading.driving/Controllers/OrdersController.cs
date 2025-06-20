@@ -9,12 +9,15 @@ namespace envolti.api.order.reading.driving.Controllers
 {
     [Route( "api/[controller]" )]
     [ApiController]
-    public class OrderController : ControllerBase
+    public class OrdersController : ControllerBase
     {
         private readonly IMediator _mediator;
-        public OrderController( IMediator mediator )
+        private readonly ILogger<OrdersController> _Logger;
+
+        public OrdersController( IMediator mediator, ILogger<OrdersController> logger )
         {
             _mediator = mediator;
+            _Logger = logger;
         }
 
         [HttpGet( "{OrderIdExternal}" )]
@@ -32,6 +35,7 @@ namespace envolti.api.order.reading.driving.Controllers
             if ( response.Success )
             {
                 stopwatch.Stop( );
+                _Logger.LogInformation( $"Tempo total da requisição do pedido por Id: {stopwatch.ElapsedMilliseconds} ms" );
                 Console.WriteLine( $"Tempo total da requisição do pedido por Id: {stopwatch.ElapsedMilliseconds} ms" );
 
                 return Ok( response.Data );
@@ -41,15 +45,22 @@ namespace envolti.api.order.reading.driving.Controllers
         }
 
         [HttpGet( "GetAll" )]
-        public async Task<ActionResult<IEnumerable<OrderResponse>>> GetAll( )
+        public async Task<ActionResult<IEnumerable<OrderResponse>>> GetAll( int pageNumber = 1, int pageSize = 10 )
         {
             Stopwatch stopwatch = Stopwatch.StartNew( );
 
-            var response = await _mediator.Send( new GetAllOrdersQuery( ) );
+            var query = new GetAllOrdersQuery
+            {
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+
+            var response = await _mediator.Send( query );
 
             if ( response.Any( ) )
             {
                 stopwatch.Stop( );
+                _Logger.LogInformation( $"Tempo total da requisição por todos os pedidos: {stopwatch.ElapsedMilliseconds} ms" );
                 Console.WriteLine( $"Tempo total da requisição por todos os pedidos: {stopwatch.ElapsedMilliseconds} ms" );
 
                 return Ok( response );
@@ -59,13 +70,15 @@ namespace envolti.api.order.reading.driving.Controllers
         }
 
         [HttpGet( "GetByStatus" )]
-        public async Task<ActionResult<IEnumerable<OrderResponse>>> GetByStatus( StatusEnum status )
+        public async Task<ActionResult<IEnumerable<OrderResponse>>> GetByStatus( StatusEnum status, int pageNumber = 1, int pageSize = 10 )
         {
             Stopwatch stopwatch = Stopwatch.StartNew( );
 
             var query = new GetOrdersByStatusQuery
             {
-                Status = status
+                Status = status,
+                PageNumber = pageNumber,
+                PageSize = pageSize
             };
 
             var response = await _mediator.Send( query );
@@ -73,6 +86,7 @@ namespace envolti.api.order.reading.driving.Controllers
             if ( response.Any( ) )
             {
                 stopwatch.Stop( );
+                _Logger.LogInformation( $"Tempo total da requisição por status dos pedidos: {stopwatch.ElapsedMilliseconds} ms" );
                 Console.WriteLine( $"Tempo total da requisição por status dos pedidos: {stopwatch.ElapsedMilliseconds} ms" );
 
                 return Ok( response );

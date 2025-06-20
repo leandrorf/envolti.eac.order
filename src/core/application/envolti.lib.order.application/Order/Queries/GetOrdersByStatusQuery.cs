@@ -6,6 +6,8 @@ namespace envolti.lib.order.application.Order.Queries
 {
     public class GetOrdersByStatusQuery : IRequest<IEnumerable<OrderResponseDto>>
     {
+        public required int PageNumber { get; set; }
+        public required int PageSize { get; set; }
         public StatusEnum Status { get; set; }
     }
 }

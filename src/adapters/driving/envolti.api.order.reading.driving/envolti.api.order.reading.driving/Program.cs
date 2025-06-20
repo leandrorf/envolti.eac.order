@@ -3,10 +3,20 @@ using envolti.lib.order.application;
 using envolti.lib.redis.adapter;
 using System.Reflection;
 
-var builder = WebApplication.CreateBuilder( args );
+var environment = Environment.GetEnvironmentVariable( "ASPNETCORE_ENVIRONMENT" ) ?? "Production";
+
+var builder = WebApplication.CreateBuilder( new WebApplicationOptions
+{
+    EnvironmentName = environment
+} );
+
+builder.Configuration
+    .SetBasePath( Directory.GetCurrentDirectory( ) )
+    .AddJsonFile( "appsettings.json", optional: false, reloadOnChange: true )
+    .AddJsonFile( $"appsettings.{environment}.json", optional: true, reloadOnChange: true )
+    .AddEnvironmentVariables( );
 
 builder.Services.AddControllers( );
-
 builder.Services.AddEndpointsApiExplorer( );
 builder.Services.AddSwaggerGen( );
 
@@ -19,7 +29,7 @@ builder.Services.AddRedisModule( );
 builder.Services.AddMongoDbModule( );
 //builder.Services.AddSqlServerModule( builder.Configuration.GetConnectionString( "Default" ) );
 
-var corsPolicyName = "AllowAllOrigins"; // Você pode dar outro nome
+var corsPolicyName = "AllowAllOrigins";
 
 builder.Services.AddCors( options =>
 {
@@ -32,7 +42,7 @@ builder.Services.AddCors( options =>
         } );
 } );
 
-builder.WebHost.UseUrls( "http://*:8084" );
+//builder.WebHost.UseUrls( "http://*:8084" );
 
 var app = builder.Build( );
 

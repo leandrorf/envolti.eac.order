@@ -19,7 +19,8 @@ namespace envolti.service.order.driving
             ILogger<Worker> logger,
             IOrderQueuesAdapter orderQueueAdapter,
             IServiceProvider serviceProvider,
-            IOrderRedisAdapter orderRedisAdapter )
+            IOrderRedisAdapter orderRedisAdapter 
+            )
         {
             _Logger = logger;
             _OrderQueueAdapter = orderQueueAdapter;
@@ -67,6 +68,7 @@ namespace envolti.service.order.driving
                                 Message = "The order number cannot be repeated.",
                                 ErrorCode = ErrorCodesResponseEnum.THE_ORDER_NUMBER_CANNOT_BE_REPEATED
                             };
+
                             var jsonResult = JsonSerializer.Serialize( result, new JsonSerializerOptions { WriteIndented = true } );
                             _Logger.LogError( $"Pedido duplicado: {jsonResult}" );
                         }

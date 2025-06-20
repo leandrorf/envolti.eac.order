@@ -21,6 +21,7 @@ builder.Services.AddEndpointsApiExplorer( );
 builder.Services.AddSwaggerGen( );
 
 builder.AddApplicationModule( );
+
 builder.Services.AddRabbitMqQueueModule( );
 
 var app = builder.Build( );

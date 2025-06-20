@@ -24,10 +24,12 @@ namespace envolti.lib.data.mongodb.Order
             return order;
         }
 
-        public async Task<IEnumerable<OrderEntity>> GetAllAsync( )
+        public async Task<IEnumerable<OrderEntity>> GetAllAsync( int pageNumber, int pageSize )
         {
-            var result = await _collection.FindAsync( FilterDefinition<OrderEntity>.Empty );
-            return result.ToList( );
+            return await _collection.Find( FilterDefinition<OrderEntity>.Empty )
+                .Skip( ( pageNumber - 1 ) * pageSize )
+                .Limit( pageSize )
+                .ToListAsync( );
         }
 
         public async Task<OrderEntity?> GetOrderByIdAsync( int id )
@@ -37,11 +39,14 @@ namespace envolti.lib.data.mongodb.Order
             return await result.FirstOrDefaultAsync( );
         }
 
-        public async Task<IEnumerable<OrderEntity>> GetOrdersByStatusAsync( StatusEnum status )
+        public async Task<IEnumerable<OrderEntity>> GetOrdersByStatusAsync( StatusEnum status, int pageNumber, int pageSize )
         {
             var filter = Builders<OrderEntity>.Filter.Eq( o => o.Status, status );
-            var result = await _collection.FindAsync( filter );
-            return result.ToList( );
+
+            return await _collection.Find( filter )
+                .Skip( ( pageNumber - 1 ) * pageSize )
+                .Limit( pageSize )
+                .ToListAsync( );
         }
 
         public async Task<bool> OrderExistsAsync( int id )

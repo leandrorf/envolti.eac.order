@@ -77,7 +77,6 @@ namespace envolti.lib.redis.adapter.Order
             }
         }
 
-        // Explicit implementation to resolve CS0425 and CS8613
         async Task<T> IOrderRedisAdapter.ConsumerOrderByIdAsync<T>( string key, string command, string query )
         {
             await EnsureInitializedAsync( );
@@ -85,28 +84,52 @@ namespace envolti.lib.redis.adapter.Order
             if ( _Redis?.Multiplexer == null || !_Redis.Multiplexer.IsConnected )
             {
                 _Logger.LogWarning( "Redis não está conectado. Retornando valor padrão." );
-                return default;
+                return default!;
             }
 
             var result = await _Redis.ExecuteAsync( command, key, query );
-            var jsonString = result.ToString( );
+            var jsonString = result?.ToString( );
 
-            return string.IsNullOrEmpty( jsonString )
-                ? default
-                : JsonConvert.DeserializeObject<List<T>>( jsonString ).FirstOrDefault( );
+            if ( string.IsNullOrEmpty( jsonString ) )
+            {
+                throw new InvalidOperationException( "The result from Redis is null or empty." );
+            }
 
+            var deserializedList = JsonConvert.DeserializeObject<List<T>>( jsonString );
+            if ( deserializedList == null || deserializedList.Count == 0 )
+            {
+                throw new InvalidOperationException( "Deserialization resulted in a null or empty list." );
+            }
+
+            return deserializedList.First( );
         }
 
-        public async Task<T> ConsumerOrderAllAsync<T>( string key, string command, string query )
+        public async Task<T> ConsumerOrderAllAsync<T>( string key, int pageNumber, int pageSize )
         {
-            await EnsureInitializedAsync( );
+            try
+            {
+                await EnsureInitializedAsync( );
 
-            var result = await _Redis.ExecuteAsync( command, key, query );
-            var jsonString = result.ToString( );
+                int start = ( pageNumber - 1 ) * pageSize;
+                int end = start + pageSize - 1;
+                string jsonPath = $"$.items[{start}:{end + 1}]";
 
-            return string.IsNullOrEmpty( jsonString )
-                ? default
-                : JsonConvert.DeserializeObject<T>( jsonString );
+                var result = await _Redis.ExecuteAsync( "JSON.GET", key, jsonPath );
+                var jsonString = result?.ToString( );
+
+                if ( string.IsNullOrEmpty( jsonString ) )
+                {
+                    throw new InvalidOperationException( "The result from Redis is null or empty." );
+                }
+
+                return JsonConvert.DeserializeObject<T>( jsonString )!;
+            }
+            catch ( Exception ex )
+            {
+
+                throw;
+            }
+
         }
 
         public async Task<bool> PublishOrderAsync<T>( string key, T value )

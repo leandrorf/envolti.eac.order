@@ -17,11 +17,11 @@ namespace envolti.lib.order.application.Order.Queries
 
         public async Task<IEnumerable<OrderResponseDto>> Handle( GetAllOrdersQuery request, CancellationToken cancellationToken )
         {
-            List<OrderResponseDto> resp = await _OrderRedisAdapter.ConsumerOrderAllAsync<List<OrderResponseDto>>( "orders", "JSON.GET", "$.items[*]" );
+            List<OrderResponseDto> resp = await _OrderRedisAdapter.ConsumerOrderAllAsync<List<OrderResponseDto>>( "orders", request.PageNumber, request.PageSize );
 
             if ( resp == null || !resp.Any( ) )
             {
-                var orders = await _OrderRepository.GetAllAsync( );
+                var orders = await _OrderRepository.GetAllAsync( request.PageNumber, request.PageSize );
 
                 if ( orders != null && orders.Any( ) )
                 {

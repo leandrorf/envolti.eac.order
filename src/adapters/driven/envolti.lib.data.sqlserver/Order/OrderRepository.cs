@@ -44,7 +44,7 @@ namespace envolti.lib.data.sqlserver.Order
 
         }
 
-        public async Task<IEnumerable<OrderEntity>> GetAllAsync( )
+        public async Task<IEnumerable<OrderEntity>> GetAllAsync( int pageNumber = 1, int pageSize = 10 )
         {
             return await _DbContext.Orders
                 .Include( o => o.Products )
@@ -60,7 +60,7 @@ namespace envolti.lib.data.sqlserver.Order
                 .FirstOrDefaultAsync( x => x.OrderIdExternal == orderIdExternal );
         }
 
-        public async Task<IEnumerable<OrderEntity>> GetOrdersByStatusAsync( StatusEnum status )
+        public async Task<IEnumerable<OrderEntity>> GetOrdersByStatusAsync( StatusEnum status, int pageNumber, int pageSize )
         {
             return await _DbContext.Orders
                 .Include( o => o.Products )

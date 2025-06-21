@@ -37,7 +37,7 @@ namespace envolti.lib.order.application.Order.Commands
             {
                 return new OrderQueueResponse
                 {
-                    Data = null,
+                    Data = null!,
                     Success = false,
                     Message = "The order number cannot be repeated.",
                     ErrorCode = ErrorCodesResponseEnum.THE_ORDER_NUMBER_CANNOT_BE_REPEATED
@@ -47,7 +47,7 @@ namespace envolti.lib.order.application.Order.Commands
             {
                 return new OrderQueueResponse
                 {
-                    Data = null,
+                    Data = null!,
                     Success = false,
                     Message = $"An unexpected error occurred: {ex.Message}",
                     ErrorCode = ErrorCodesResponseEnum.UNIDENTIFIED_ERROR

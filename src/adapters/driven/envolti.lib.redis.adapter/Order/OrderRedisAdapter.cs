@@ -106,30 +106,21 @@ namespace envolti.lib.redis.adapter.Order
 
         public async Task<T> ConsumerOrderAllAsync<T>( string key, int pageNumber, int pageSize )
         {
-            try
+            await EnsureInitializedAsync( );
+
+            int start = ( pageNumber - 1 ) * pageSize;
+            int end = start + pageSize - 1;
+            string jsonPath = $"$.items[{start}:{end + 1}]";
+
+            var result = await _Redis.ExecuteAsync( "JSON.GET", key, jsonPath );
+            var jsonString = result?.ToString( );
+
+            if ( string.IsNullOrEmpty( jsonString ) )
             {
-                await EnsureInitializedAsync( );
-
-                int start = ( pageNumber - 1 ) * pageSize;
-                int end = start + pageSize - 1;
-                string jsonPath = $"$.items[{start}:{end + 1}]";
-
-                var result = await _Redis.ExecuteAsync( "JSON.GET", key, jsonPath );
-                var jsonString = result?.ToString( );
-
-                if ( string.IsNullOrEmpty( jsonString ) )
-                {
-                    throw new InvalidOperationException( "The result from Redis is null or empty." );
-                }
-
-                return JsonConvert.DeserializeObject<T>( jsonString )!;
-            }
-            catch ( Exception ex )
-            {
-
-                throw;
+                throw new InvalidOperationException( "The result from Redis is null or empty." );
             }
 
+            return JsonConvert.DeserializeObject<T>( jsonString )!;
         }
 
         public async Task<bool> PublishOrderAsync<T>( string key, T value )

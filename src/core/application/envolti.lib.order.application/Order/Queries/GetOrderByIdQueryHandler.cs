@@ -19,7 +19,10 @@ namespace envolti.lib.order.application.Order.Queries
         public async Task<OrderResponse> Handle( GetOrderByIdQuery request, CancellationToken cancellationToken )
         {
             OrderResponseDto resp = await _OrderRedisAdapter.ConsumerOrderByIdAsync<OrderResponseDto>(
-                "orders", "JSON.GET", $"$.items[?(@.OrderIdExternal == {request.OrderIdExternal})]" );
+                "orders", 
+                "JSON.GET", 
+                $"$.items[?(@.OrderIdExternal == {request.OrderIdExternal})]" 
+            );
 
             if ( resp == null )
             {
@@ -29,15 +32,12 @@ namespace envolti.lib.order.application.Order.Queries
                 {
                     resp = order.MapEntityToDto( );
                     await _OrderRedisAdapter.PublishOrderAsync( "orders", resp );
-
                 }
             }
 
-            // validar se order é nulo
-
             return new OrderResponse
             {
-                Data = resp,
+                Data = resp!,
                 Success = true,
                 Message = "Order retrieved successfully."
             };

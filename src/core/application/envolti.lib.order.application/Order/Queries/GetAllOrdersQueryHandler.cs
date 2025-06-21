@@ -30,7 +30,7 @@ namespace envolti.lib.order.application.Order.Queries
                 }
             }
 
-            return resp;
+            return resp!;
         }
     }
 }

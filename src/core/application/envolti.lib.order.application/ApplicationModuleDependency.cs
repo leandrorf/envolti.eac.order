@@ -73,9 +73,9 @@ namespace envolti.lib.order.application
                     .Enrich.FromLogContext( )
                     .WriteTo.Console( outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level}] {Message} (CorrelationId: {CorrelationId}){NewLine}{Exception}" )
                     .WriteTo.Console( )
-                    .WriteTo.GrafanaLoki( lokiUrl, labels: new List<LokiLabel>
+                    .WriteTo.GrafanaLoki( lokiUrl!, labels: new List<LokiLabel>
                     {
-                        new LokiLabel { Key = "api", Value = applicationName }
+                        new LokiLabel { Key = "api", Value = applicationName! }
                     } )
                     .Enrich.WithProperty( "Application", applicationName )
                     .ReadFrom.Configuration( context.Configuration );

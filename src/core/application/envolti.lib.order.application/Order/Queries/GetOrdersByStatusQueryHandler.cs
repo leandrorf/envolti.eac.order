@@ -38,7 +38,7 @@ namespace envolti.lib.order.application.Order.Queries
                 resp = resp.Where( o => o.Status == request.Status ).ToList( );
             }
 
-            return resp;
+            return resp!;
         }
     }
 }

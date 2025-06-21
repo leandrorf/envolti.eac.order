@@ -36,7 +36,7 @@ namespace envolti.lib.order.application.Order.Commands
             {
                 return new OrderResponse
                 {
-                    Data = null,
+                    Data = null!,
                     Success = false,
                     Message = "The order number cannot be repeated.",
                     ErrorCode = ErrorCodesResponseEnum.THE_ORDER_NUMBER_CANNOT_BE_REPEATED

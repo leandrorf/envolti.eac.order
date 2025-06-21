@@ -3,6 +3,24 @@
 # Eac
 Engineering, Architecture and Construction
 
+# Resumo funcional
+
+- Serviço "order" responsável por orquestrar o recebimento, processamento e disponibilização de pedidos. Permite integração com sistema externo A para entrada e com sistema externo B para consumo dos pedidos processados.
+
+# Decisões técnicas
+
+- Uso do Redis com ReJSON para armazenamento em memória de alto desempenho.
+- Utilização do MongoDB para armazenamento histórico e analytics.
+- Injeção de dependência via IOrderRedisAdapter, facilitando mock e testes.
+- Paginação com Redis e estratégia de serialização com Newtonsoft.
+
+# Desafios atendidos
+
+- Volumetria diária de até 200 mil pedidos.
+- Detecção de duplicidade via ID do pedido.
+- Processamento concorrente com Redis atomic.
+- Consulta eficiente por status e paginação
+
 # Sobre o ambiente ambiente
 
 O ambiente utiliza recursos externos como ferramentas para auxiliar no proprosito da aplicação sendo eles:

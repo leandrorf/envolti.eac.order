@@ -69,7 +69,7 @@ namespace envolti.service.order.driving
 
                             stopwatch.Stop( );
 
-                            _Logger.LogInformation( $"Pedido {order.OrderIdExternal} processado com sucesso. Tempo gasto: {stopwatch.ElapsedMilliseconds} ms" );
+                            _Logger.LogInformation( $"Pedido {order.OrderIdExternal} processado com sucesso. Tempo gasto: {stopwatch.ElapsedMilliseconds} ms", order.OrderIdExternal, stopwatch.ElapsedMilliseconds );
                         }
                         catch ( TheOrderNumberCannotBeRepeatedException )
                         {

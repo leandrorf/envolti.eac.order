@@ -69,7 +69,7 @@ namespace envolti.lib.order.application
                     .WriteTo.Console( outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level}] {Message} (LogId: {LogId}){NewLine}{Exception}" )
                     .WriteTo.GrafanaLoki(
                         lokiUrl!,
-                        textFormatter: new LokiJsonTextFormatter( ), // Garante logs estruturados
+                        textFormatter: new NoMessageTemplateJsonFormatter( ), // Garante logs estruturados
                         labels: new List<LokiLabel>
                         {
                             new LokiLabel { Key = applicationType!, Value = applicationName! }

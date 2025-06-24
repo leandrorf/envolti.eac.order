@@ -43,8 +43,6 @@ namespace envolti.lib.order.application
             var applicationType = builder.Configuration.GetSection( "ApplicationSettings:ApplicationType" ).Value;
             var lokiUrl = builder.Configuration.GetSection( "Services:LokiUrl" ).Value;
 
-            //var sqlServerSettings = builder.Configuration.GetSection( "ConnectionStrings" );
-
             if ( rabbitMqSettings != null )
             {
                 builder.Services.Configure<RabbitMqSettings>( rabbitMqSettings );
@@ -60,23 +58,22 @@ namespace envolti.lib.order.application
                 builder.Services.Configure<MongoSettings>( mongoSettings );
             }
 
-            //if ( sqlServerSettings != null )
-            //{
-            //    builder.Services.Configure<SqlServerSettings>( sqlServerSettings );
-            //}
-
             builder.Host.UseSerilog( ( context, services, configuration ) =>
             {
                 configuration
                     .Enrich.FromLogContext( )
-                    .WriteTo.Console( outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level}] {Message} (CorrelationId: {CorrelationId}){NewLine}{Exception}" )
-                    .WriteTo.Console( )
-                    .WriteTo.GrafanaLoki( lokiUrl!, labels: new List<LokiLabel>
-                    {
-                        new LokiLabel { Key = applicationType!, Value = applicationName! }
-                    } )
+                    .Enrich.With<LogIdEnricher>( )
+                    .Enrich.With<TimestampJitterEnricher>( )
                     .Enrich.WithProperty( "Application", applicationName )
                     .Enrich.WithProperty( "Type", applicationType )
+                    .WriteTo.Console( outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level}] {Message} (LogId: {LogId}){NewLine}{Exception}" )
+                    .WriteTo.GrafanaLoki(
+                        lokiUrl!,
+                        textFormatter: new LokiJsonTextFormatter( ), // Garante logs estruturados
+                        labels: new List<LokiLabel>
+                        {
+                            new LokiLabel { Key = applicationType!, Value = applicationName! }
+                        } )
                     .ReadFrom.Configuration( context.Configuration );
             } );
         }

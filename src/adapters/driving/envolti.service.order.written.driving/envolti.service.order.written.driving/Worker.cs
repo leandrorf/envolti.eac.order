@@ -61,6 +61,8 @@ namespace envolti.service.order.driving
                         {
                             stopwatch.Restart( );
 
+                            _Logger.LogInformation( $"Processando pedido: {order.OrderIdExternal}" );
+
                             var orderEntity = OrderQueuesAdapter.MapToEntity( order );
                             await orderEntity.Save( orderRepository );
                             await _OrderRedisAdapter.PublishOrderAsync( orderEntity.MapEntityToDto( ) );

@@ -61,7 +61,7 @@ namespace envolti.service.order.driving
                         {
                             stopwatch.Restart( );
 
-                            _Logger.LogInformation( $"Processando pedido: {order.OrderIdExternal}" );
+                            _Logger.LogInformation( "Processando pedido: {order.OrderIdExternal}", order.OrderIdExternal );
 
                             var orderEntity = OrderQueuesAdapter.MapToEntity( order );
                             await orderEntity.Save( orderRepository );
@@ -69,7 +69,7 @@ namespace envolti.service.order.driving
 
                             stopwatch.Stop( );
 
-                            _Logger.LogInformation( $"Pedido {order.OrderIdExternal} processado com sucesso. Tempo gasto: {stopwatch.ElapsedMilliseconds} ms", order.OrderIdExternal, stopwatch.ElapsedMilliseconds );
+                            _Logger.LogInformation( "Pedido {order.OrderIdExternal} processado com sucesso. Tempo gasto: {stopwatch.ElapsedMilliseconds} ms", order.OrderIdExternal, stopwatch.ElapsedMilliseconds );
                         }
                         catch ( TheOrderNumberCannotBeRepeatedException )
                         {
@@ -82,7 +82,7 @@ namespace envolti.service.order.driving
                             };
 
                             var jsonResult = JsonSerializer.Serialize( result, new JsonSerializerOptions { WriteIndented = true } );
-                            _Logger.LogError( $"Pedido duplicado: {jsonResult}" );
+                            _Logger.LogError( "Pedido duplicado: {jsonResult}", jsonResult );
                         }
                         catch ( Exception ex )
                         {

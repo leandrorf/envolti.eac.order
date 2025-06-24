@@ -2,6 +2,7 @@
 {
     public class RedisSettings
     {
-        public string Host { get; set; }
+        public string? Host { get; set; }
+        public string? DatabaseName { get; set; }
     }
 }

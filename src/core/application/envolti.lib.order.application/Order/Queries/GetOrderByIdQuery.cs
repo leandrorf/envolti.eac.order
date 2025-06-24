@@ -3,7 +3,7 @@ using MediatR;
 
 namespace envolti.lib.order.application.Order.Queries
 {
-    public class GetOrderByIdQuery : IRequest<OrderResponse>
+    public class GetOrderByIdQuery : IRequest<OrderSingleResponse>
     {
         public int OrderIdExternal { get; set; }
     }

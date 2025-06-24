@@ -22,7 +22,7 @@ namespace envolti.api.order.driving.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<OrderResponse>> Post( [FromBody] OrderRequestDto value )
+        public async Task<ActionResult<OrderListResponse>> Post( [FromBody] OrderRequestDto value )
         {
             Stopwatch stopwatch = Stopwatch.StartNew( );
 
@@ -37,7 +37,6 @@ namespace envolti.api.order.driving.Controllers
             {
                 stopwatch.Stop( );
                 _Logger.LogInformation( $"Tempo total da requisição: {stopwatch.ElapsedMilliseconds} ms" );
-                Console.WriteLine( $"Tempo total da requisição: {stopwatch.ElapsedMilliseconds} ms" );
 
                 return Ok( res.Data );
             }

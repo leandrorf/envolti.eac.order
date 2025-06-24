@@ -61,18 +61,18 @@ services:
     networks:
       - minha_rede
 
-  sqlserver:
-    container_name: sqlserver
-    image: mcr.microsoft.com/mssql/server:2025-latest
-    environment:
-      SA_PASSWORD: "L3@ndr0rf"
-      ACCEPT_EULA: "Y"
-    ports:
-      - "0.0.0.0:1433:1433"
-    volumes:
-      - sqlserver_data:/var/opt/mssql
-    networks:
-      - minha_rede
+  # sqlserver:
+  #   container_name: sqlserver
+  #   image: mcr.microsoft.com/mssql/server:2025-latest
+  #   environment:
+  #     SA_PASSWORD: "L3@ndr0rf"
+  #     ACCEPT_EULA: "Y"
+  #   ports:
+  #     - "0.0.0.0:1433:1433"
+  #   volumes:
+  #     - sqlserver_data:/var/opt/mssql
+  #   networks:
+  #     - minha_rede
 
   rabbitmq:
     container_name: rabbitmq

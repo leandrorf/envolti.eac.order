@@ -1,12 +1,11 @@
 ﻿using envolti.lib.order.domain.Order.Entities;
 using envolti.lib.order.domain.Order.Enums;
-using System.Text.Json.Serialization;
 
 namespace envolti.lib.order.domain.Order.Dtos
 {
     public class OrderResponseDto
     {
-        public string Id { get; set; }
+        public string? Id { get; set; }
         public required int OrderIdExternal { get; set; }
         public decimal TotalPrice { get; set; }
         public DateTime CreatedAt { get; set; }
@@ -16,7 +15,7 @@ namespace envolti.lib.order.domain.Order.Dtos
 
         public class Produtos
         {
-            public string Id { get; set; }
+            public string? Id { get; set; }
             public required int ProductIdExternal { get; set; }
             public required string Name { get; set; }
             public required decimal Price { get; set; }

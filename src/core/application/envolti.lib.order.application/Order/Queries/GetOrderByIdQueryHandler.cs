@@ -1,46 +1,67 @@
 ﻿using envolti.lib.order.application.Order.Responses;
 using envolti.lib.order.domain.Order.Dtos;
+using envolti.lib.order.domain.Order.Enums;
+using envolti.lib.order.domain.Order.Exceptions;
 using envolti.lib.order.domain.Order.Ports;
 using MediatR;
 
 namespace envolti.lib.order.application.Order.Queries
 {
-    public class GetOrderByIdQueryHandler : IRequestHandler<GetOrderByIdQuery, OrderResponse>
+    public class GetOrderByIdQueryHandler : IRequestHandler<GetOrderByIdQuery, OrderSingleResponse>
     {
         private readonly IOrderRepository _OrderRepository;
-        private readonly IOrderRedisAdapter _OrderRedisAdapter;
+        private readonly IOrderCacheAdapter _OrderRedisAdapter;
 
-        public GetOrderByIdQueryHandler( IOrderRepository orderRepository, IOrderRedisAdapter orderRedisAdapter )
+        public GetOrderByIdQueryHandler( IOrderRepository orderRepository, IOrderCacheAdapter orderRedisAdapter )
         {
             _OrderRepository = orderRepository;
             _OrderRedisAdapter = orderRedisAdapter;
         }
 
-        public async Task<OrderResponse> Handle( GetOrderByIdQuery request, CancellationToken cancellationToken )
+        public async Task<OrderSingleResponse> Handle( GetOrderByIdQuery request, CancellationToken cancellationToken )
         {
-            OrderResponseDto resp = await _OrderRedisAdapter.ConsumerOrderByIdAsync<OrderResponseDto>(
-                "orders", 
-                "JSON.GET", 
-                $"$.items[?(@.OrderIdExternal == {request.OrderIdExternal})]" 
-            );
-
-            if ( resp == null )
+            try
             {
-                var order = await _OrderRepository.GetOrderByIdAsync( request.OrderIdExternal );
+                OrderResponseDto resp = await _OrderRedisAdapter.ConsumerOrderByIdAsync<OrderResponseDto>( "orderidexternal", request.OrderIdExternal );
 
-                if ( order != null )
+                if ( resp == null )
                 {
-                    resp = order.MapEntityToDto( );
-                    await _OrderRedisAdapter.PublishOrderAsync( "orders", resp );
-                }
-            }
+                    var order = await _OrderRepository.GetOrderByIdAsync( request.OrderIdExternal );
 
-            return new OrderResponse
+                    if ( order != null )
+                    {
+                        resp = order.MapEntityToDto( );
+                        await _OrderRedisAdapter.PublishOrderAsync( resp );
+                    }
+                }
+
+                return new OrderSingleResponse
+                {
+                    Data = resp,
+                    Success = true,
+                    Message = "Order retrieved successfully."
+                };
+            }
+            catch ( RecordNotFoundException )
             {
-                Data = resp!,
-                Success = true,
-                Message = "Order retrieved successfully."
-            };
+                return new OrderSingleResponse
+                {
+                    Data = null!,
+                    Success = false,
+                    Message = "Order not found.",
+                    ErrorCode = ErrorCodesResponseEnum.RECORD_NOT_FOUND
+                };
+            }
+            catch ( Exception ex )
+            {
+                return new OrderSingleResponse
+                {
+                    Data = null!,
+                    Success = false,
+                    Message = $"An unexpected error occurred: {ex.Message}",
+                    ErrorCode = ErrorCodesResponseEnum.UNIDENTIFIED_ERROR
+                };
+            }
         }
     }
 }

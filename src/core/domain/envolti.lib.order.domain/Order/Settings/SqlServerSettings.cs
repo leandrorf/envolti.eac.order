@@ -2,6 +2,6 @@
 {
     public class SqlServerSettings
     {
-        public string Default { get; set; }
+        public string? Default { get; set; }
     }
 }

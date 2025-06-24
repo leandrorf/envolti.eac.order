@@ -1,4 +1,5 @@
-﻿using envolti.lib.order.domain.Order.Entities;
+﻿using envolti.lib.order.domain.Order.Dtos;
+using envolti.lib.order.domain.Order.Entities;
 using envolti.lib.order.domain.Order.Enums;
 using envolti.lib.order.domain.Order.Ports;
 using Microsoft.EntityFrameworkCore;
@@ -44,12 +45,14 @@ namespace envolti.lib.data.sqlserver.Order
 
         }
 
-        public async Task<IEnumerable<OrderEntity>> GetAllAsync( int pageNumber = 1, int pageSize = 10 )
+        public async Task<PagedResult<OrderEntity>> GetAllAsync( int pageNumber = 1, int pageSize = 10 )
         {
-            return await _DbContext.Orders
-                .Include( o => o.Products )
-                .AsNoTracking( )
-                .ToListAsync( );
+
+            return null;
+            //return await _DbContext.Orders
+            //    .Include( o => o.Products )
+            //    .AsNoTracking( )
+            //    .ToListAsync( );
         }
 
         public async Task<OrderEntity?> GetOrderByIdAsync( int orderIdExternal )
@@ -60,13 +63,25 @@ namespace envolti.lib.data.sqlserver.Order
                 .FirstOrDefaultAsync( x => x.OrderIdExternal == orderIdExternal );
         }
 
-        public async Task<IEnumerable<OrderEntity>> GetOrdersByStatusAsync( StatusEnum status, int pageNumber, int pageSize )
+        public async Task<PagedResult<OrderEntity>> GetOrdersByStatusAsync( StatusEnum status, int pageNumber, int pageSize )
         {
-            return await _DbContext.Orders
-                .Include( o => o.Products )
-                .AsNoTracking( )
-                .Where( x => x.Status == status )
-                .ToListAsync( );
+            return null;
+            //var filter = Builders<OrderEntity>.Filter.Eq( o => o.Status, status );
+            //var total = ( int )await _collection.CountDocumentsAsync( filter );
+
+            //var pedidos = await _collection.Find( filter )
+            //    .Skip( ( pageNumber - 1 ) * pageSize )
+            //    .Limit( pageSize )
+            //    .ToListAsync( );
+
+            //return new PagedResult<OrderEntity>
+            //{
+            //    Total = total,
+            //    PaginaAtual = pageNumber,
+            //    TamanhoPagina = pageSize,
+            //    Itens = pedidos
+            //};
+
         }
 
         public async Task<bool> OrderExistsAsync( int id )

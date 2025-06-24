@@ -1,4 +1,5 @@
-﻿using envolti.lib.order.domain.Order.Entities;
+﻿using envolti.lib.order.domain.Order.Dtos;
+using envolti.lib.order.domain.Order.Entities;
 using envolti.lib.order.domain.Order.Enums;
 using envolti.lib.order.domain.Order.Ports;
 using envolti.lib.order.domain.Order.Settings;
@@ -15,7 +16,7 @@ namespace envolti.lib.data.mongodb.Order
         {
             var client = new MongoClient( settings.Value.ConnectionString );
             var database = client.GetDatabase( settings.Value.DatabaseName );
-            _collection = database.GetCollection<OrderEntity>( "orders" );
+            _collection = database.GetCollection<OrderEntity>( settings.Value.DatabaseName );
         }
 
         public async Task<OrderEntity> CreateOrderAsync( OrderEntity order )
@@ -24,12 +25,23 @@ namespace envolti.lib.data.mongodb.Order
             return order;
         }
 
-        public async Task<IEnumerable<OrderEntity>> GetAllAsync( int pageNumber, int pageSize )
+        public async Task<PagedResult<OrderEntity>> GetAllAsync( int pageNumber, int pageSize )
         {
-            return await _collection.Find( FilterDefinition<OrderEntity>.Empty )
+            var total = ( int )await _collection.CountDocumentsAsync( FilterDefinition<OrderEntity>.Empty );
+
+            var pedidos = await _collection.Find( FilterDefinition<OrderEntity>.Empty )
                 .Skip( ( pageNumber - 1 ) * pageSize )
                 .Limit( pageSize )
                 .ToListAsync( );
+
+            return new PagedResult<OrderEntity>
+            {
+                Total = total,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                Items = pedidos
+            };
+
         }
 
         public async Task<OrderEntity?> GetOrderByIdAsync( int id )
@@ -39,14 +51,23 @@ namespace envolti.lib.data.mongodb.Order
             return await result.FirstOrDefaultAsync( );
         }
 
-        public async Task<IEnumerable<OrderEntity>> GetOrdersByStatusAsync( StatusEnum status, int pageNumber, int pageSize )
+        public async Task<PagedResult<OrderEntity>> GetOrdersByStatusAsync( StatusEnum status, int pageNumber, int pageSize )
         {
             var filter = Builders<OrderEntity>.Filter.Eq( o => o.Status, status );
+            var total = ( int )await _collection.CountDocumentsAsync( filter );
 
-            return await _collection.Find( filter )
+            var pedidos = await _collection.Find( filter )
                 .Skip( ( pageNumber - 1 ) * pageSize )
                 .Limit( pageSize )
                 .ToListAsync( );
+
+            return new PagedResult<OrderEntity>
+            {
+                Total = total,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                Items = pedidos
+            };
         }
 
         public async Task<bool> OrderExistsAsync( int id )

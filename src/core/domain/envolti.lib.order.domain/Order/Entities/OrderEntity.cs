@@ -11,7 +11,7 @@ namespace envolti.lib.order.domain.Order.Entities
     {
         [BsonId]
         [BsonRepresentation( BsonType.ObjectId )]
-        public string Id { get; set; }
+        public string? Id { get; set; }
         public int OrderIdExternal { get; set; }
         public decimal TotalPrice { get; set; }
         public DateTime CreatedAt { get; set; }
@@ -35,6 +35,12 @@ namespace envolti.lib.order.domain.Order.Entities
             if ( Products.Any( ) )
             {
                 TotalPrice = Products.Sum( p => p.Price );
+
+                foreach ( var produto in Products )
+                {
+                    produto.Id ??= ObjectId.GenerateNewId( ).ToString( );
+                    produto.CreatedAt = DateTime.Now;
+                }
             }
             else
             {

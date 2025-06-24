@@ -1,5 +1,4 @@
 ﻿using envolti.lib.order.domain.Order.Entities;
-using System.Text.Json.Serialization;
 
 namespace envolti.lib.order.domain.Order.Dtos
 {

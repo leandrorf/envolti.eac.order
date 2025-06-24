@@ -1,11 +1,4 @@
-﻿using envolti.lib.order.domain.Order.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace envolti.lib.order.domain.Order.Dtos
+﻿namespace envolti.lib.order.domain.Order.Dtos
 {
     public class OrderResponseQueueDto
     {

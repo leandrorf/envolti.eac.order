@@ -4,7 +4,7 @@ using MediatR;
 
 namespace envolti.lib.order.application.Order.Queries
 {
-    public class GetOrdersByStatusQuery : IRequest<IEnumerable<OrderResponseDto>>
+    public class GetOrdersByStatusQuery : IRequest<PagedResult<OrderResponseDto>>
     {
         public required int PageNumber { get; set; }
         public required int PageSize { get; set; }

@@ -8,9 +8,9 @@ namespace envolti.lib.order.domain.Order.Adapters
 {
     public class OrderQueuesAdapter : OrderRequestDto
     {
-        private async Task ValidateState( IOrderQueuesAdapter orderAdapter )
+        private async Task ValidateState( IOrderQueuesAdapter orderAdapter, string queueName )
         {
-            if ( await orderAdapter.Exists( "order_queue", OrderIdExternal ) )
+            if ( await orderAdapter.Exists( queueName, OrderIdExternal ) )
             {
                 throw new TheOrderNumberCannotBeRepeatedException( );
             }
@@ -61,10 +61,10 @@ namespace envolti.lib.order.domain.Order.Adapters
             };
         }
 
-        public async Task Save( IOrderQueuesAdapter orderAdapter )
+        public async Task Save( IOrderQueuesAdapter orderAdapter, string queueName )
         {
-            await ValidateState( orderAdapter );
-            var resp = await orderAdapter.PublishOrderAsync( this, "order_queue" );
+            await ValidateState( orderAdapter, queueName );
+            var resp = await orderAdapter.PublishOrderAsync( this, queueName );
         }
     }
 }

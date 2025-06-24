@@ -2,8 +2,8 @@
 
 namespace envolti.lib.order.application.Order.Responses
 {
-    public class OrderResponse : Response
+    public class OrderListResponse : Response
     {
-        public required OrderResponseDto Data;
+        public PagedResult<OrderResponseDto>? Data;
     }
 }

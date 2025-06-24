@@ -21,7 +21,7 @@ namespace envolti.api.order.reading.driving.Controllers
         }
 
         [HttpGet( "{OrderIdExternal}" )]
-        public async Task<ActionResult<OrderResponse>> Get( int OrderIdExternal )
+        public async Task<ActionResult<OrderListResponse>> Get( int OrderIdExternal )
         {
             Stopwatch stopwatch = Stopwatch.StartNew( );
 
@@ -40,12 +40,18 @@ namespace envolti.api.order.reading.driving.Controllers
 
                 return Ok( response.Data );
             }
+            else if ( response.ErrorCode == ErrorCodesResponseEnum.RECORD_NOT_FOUND )
+            {
+                _Logger.LogWarning( "Pedido não encontrado." );
+                return NotFound( response );
+            }
 
-            return NotFound( response.Message );
+            _Logger.LogError( "An unexpected error occurred: {Message}", response.Message );
+            return BadRequest( response );
         }
 
         [HttpGet( "GetAll" )]
-        public async Task<ActionResult<IEnumerable<OrderResponse>>> GetAll( int pageNumber = 1, int pageSize = 10 )
+        public async Task<ActionResult<IEnumerable<OrderListResponse>>> GetAll( int pageNumber = 1, int pageSize = 10 )
         {
             Stopwatch stopwatch = Stopwatch.StartNew( );
 
@@ -57,7 +63,7 @@ namespace envolti.api.order.reading.driving.Controllers
 
             var response = await _mediator.Send( query );
 
-            if ( response.Any( ) )
+            if ( response.Data != null && response.Data.Items.Any( ) )
             {
                 stopwatch.Stop( );
                 _Logger.LogInformation( $"Tempo total da requisição por todos os pedidos: {stopwatch.ElapsedMilliseconds} ms" );
@@ -70,7 +76,7 @@ namespace envolti.api.order.reading.driving.Controllers
         }
 
         [HttpGet( "GetByStatus" )]
-        public async Task<ActionResult<IEnumerable<OrderResponse>>> GetByStatus( StatusEnum status, int pageNumber = 1, int pageSize = 10 )
+        public async Task<ActionResult<IEnumerable<OrderListResponse>>> GetByStatus( StatusEnum status, int pageNumber = 1, int pageSize = 10 )
         {
             Stopwatch stopwatch = Stopwatch.StartNew( );
 
@@ -83,7 +89,7 @@ namespace envolti.api.order.reading.driving.Controllers
 
             var response = await _mediator.Send( query );
 
-            if ( response.Any( ) )
+            if ( response.Items.Any( ) )
             {
                 stopwatch.Stop( );
                 _Logger.LogInformation( $"Tempo total da requisição por status dos pedidos: {stopwatch.ElapsedMilliseconds} ms" );

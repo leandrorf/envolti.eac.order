@@ -4,7 +4,7 @@ using MediatR;
 
 namespace envolti.lib.order.application.Order.Commands
 {
-    public class CreateOrderCommand : IRequest<OrderResponse>
+    public class CreateOrderCommand : IRequest<CreateOrderResponse>
     {
         public required OrderRequestDto Data { get; set; }
     }

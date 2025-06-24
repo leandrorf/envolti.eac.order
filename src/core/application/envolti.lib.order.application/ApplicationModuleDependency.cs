@@ -21,7 +21,7 @@ namespace envolti.lib.order.application
                 throw new InvalidOperationException( "A implementação de IOrderRepository deve ser registrada no projeto de envolti.lib.data.sqlserver." );
             } );
 
-            services.AddScoped<IOrderRedisAdapter>( sp =>
+            services.AddScoped<IOrderCacheAdapter>( sp =>
             {
                 throw new InvalidOperationException( "A implementação de IOrderRedisAdapter deve ser registrada no projeto de envolti.lib.redis.adapter." );
             } );
@@ -38,11 +38,12 @@ namespace envolti.lib.order.application
 
             var rabbitMqSettings = builder.Configuration.GetSection( "Services:RabbitMQ" );
             var redisSettings = builder.Configuration.GetSection( "Services:Redis" );
-            //var sqlServerSettings = builder.Configuration.GetSection( "ConnectionStrings" );
-
             var mongoSettings = builder.Configuration.GetSection( "MongoSettings" );
+            var applicationName = builder.Configuration.GetSection( "ApplicationSettings:ApplicationName" ).Value;
+            var applicationType = builder.Configuration.GetSection( "ApplicationSettings:ApplicationType" ).Value;
+            var lokiUrl = builder.Configuration.GetSection( "Services:LokiUrl" ).Value;
 
-            builder.Services.Configure<MongoSettings>( builder.Configuration.GetSection( "MongoSettings" ) );
+            //var sqlServerSettings = builder.Configuration.GetSection( "ConnectionStrings" );
 
             if ( rabbitMqSettings != null )
             {
@@ -64,9 +65,6 @@ namespace envolti.lib.order.application
             //    builder.Services.Configure<SqlServerSettings>( sqlServerSettings );
             //}
 
-            var lokiUrl = builder.Configuration.GetSection( "Services:LokiUrl" ).Value;
-            var applicationName = builder.Configuration.GetSection( "ApplicationName" ).Value;
-
             builder.Host.UseSerilog( ( context, services, configuration ) =>
             {
                 configuration
@@ -75,9 +73,10 @@ namespace envolti.lib.order.application
                     .WriteTo.Console( )
                     .WriteTo.GrafanaLoki( lokiUrl!, labels: new List<LokiLabel>
                     {
-                        new LokiLabel { Key = "api", Value = applicationName! }
+                        new LokiLabel { Key = applicationType!, Value = applicationName! }
                     } )
                     .Enrich.WithProperty( "Application", applicationName )
+                    .Enrich.WithProperty( "Type", applicationType )
                     .ReadFrom.Configuration( context.Configuration );
             } );
         }

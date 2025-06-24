@@ -3,6 +3,8 @@ using envolti.lib.order.domain.Order.Adapters;
 using envolti.lib.order.domain.Order.Enums;
 using envolti.lib.order.domain.Order.Exceptions;
 using envolti.lib.order.domain.Order.Ports;
+using envolti.lib.order.domain.Order.Settings;
+using Microsoft.Extensions.Options;
 using System.Diagnostics;
 using System.Text.Json;
 
@@ -13,19 +15,21 @@ namespace envolti.service.order.driving
         private readonly ILogger<Worker> _Logger;
         private readonly IOrderQueuesAdapter _OrderQueueAdapter;
         private readonly IServiceProvider _ServiceProvider;
-        private readonly IOrderRedisAdapter _OrderRedisAdapter;
+        private readonly IOrderCacheAdapter _OrderRedisAdapter;
+        private readonly IOptions<RabbitMqSettings> _Settings;
 
         public Worker(
             ILogger<Worker> logger,
             IOrderQueuesAdapter orderQueueAdapter,
             IServiceProvider serviceProvider,
-            IOrderRedisAdapter orderRedisAdapter 
-            )
+            IOrderCacheAdapter orderRedisAdapter,
+            IOptions<RabbitMqSettings> settings )
         {
             _Logger = logger;
             _OrderQueueAdapter = orderQueueAdapter;
             _ServiceProvider = serviceProvider;
             _OrderRedisAdapter = orderRedisAdapter;
+            _Settings = settings;
         }
 
         protected override async Task ExecuteAsync( CancellationToken stoppingToken )
@@ -37,6 +41,12 @@ namespace envolti.service.order.driving
             await using var scope = _ServiceProvider.CreateAsyncScope( );
             var orderRepository = scope.ServiceProvider.GetRequiredService<IOrderRepository>( );
 
+            if ( _Settings?.Value?.Queue?.OrderQueue == null )
+            {
+                _Logger.LogError( "OrderQueue setting is not configured properly." );
+                return;
+            }
+
             while ( !stoppingToken.IsCancellationRequested )
             {
                 if ( _Logger.IsEnabled( LogLevel.Information ) )
@@ -44,7 +54,7 @@ namespace envolti.service.order.driving
                     _Logger.LogInformation( "Worker running at: {time}", DateTimeOffset.Now );
                 }
 
-                await _OrderQueueAdapter.ConsumerOrderAsync( "order_queue", stoppingToken,
+                await _OrderQueueAdapter.ConsumerOrderAsync( _Settings.Value.Queue.OrderQueue, stoppingToken,
                     async ( order ) =>
                     {
                         try
@@ -53,7 +63,7 @@ namespace envolti.service.order.driving
 
                             var orderEntity = OrderQueuesAdapter.MapToEntity( order );
                             await orderEntity.Save( orderRepository );
-                            await _OrderRedisAdapter.PublishOrderAsync( "orders", orderEntity.MapEntityToDto( ) );
+                            await _OrderRedisAdapter.PublishOrderAsync( orderEntity.MapEntityToDto( ) );
 
                             stopwatch.Stop( );
 
@@ -61,7 +71,7 @@ namespace envolti.service.order.driving
                         }
                         catch ( TheOrderNumberCannotBeRepeatedException )
                         {
-                            var result = new OrderResponse
+                            var result = new OrderListResponse
                             {
                                 Data = null!,
                                 Success = false,

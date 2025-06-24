@@ -4,11 +4,11 @@ using envolti.lib.order.domain.Order.Ports;
 
 namespace envolti.lib.order.domain.Order.Adapters
 {
-    public class OrderRedisAdapter : OrderRequestDto
+    public class OrderCacheAdapter : OrderRequestDto
     {
-        public static OrderRedisAdapter MapToDto( OrderRequestDto dto )
+        public static OrderCacheAdapter MapToDto( OrderRequestDto dto )
         {
-            return new OrderRedisAdapter
+            return new OrderCacheAdapter
             {
                 OrderIdExternal = dto.OrderIdExternal,
                 Products = dto.Products.Select( p => new OrderRequestDto.Produtos
@@ -34,9 +34,9 @@ namespace envolti.lib.order.domain.Order.Adapters
             };
         }
 
-        public async Task Save( IOrderRedisAdapter order )
+        public async Task Save( IOrderCacheAdapter order )
         {
-            await order.PublishOrderAsync( "order", order );
+            await order.PublishOrderAsync( order );
         }
     }
 }

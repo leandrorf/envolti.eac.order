@@ -1,13 +1,17 @@
-﻿using envolti.lib.order.domain.Order.Ports;
+﻿using envolti.lib.order.domain.Order.Dtos;
+using envolti.lib.order.domain.Order.Enums;
+using envolti.lib.order.domain.Order.Exceptions;
+using envolti.lib.order.domain.Order.Ports;
 using envolti.lib.order.domain.Order.Settings;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using NRedisStack.RedisStackCommands;
 using StackExchange.Redis;
 
 namespace envolti.lib.redis.adapter.Order
 {
-    public class OrderRedisAdapter : IOrderRedisAdapter, IAsyncDisposable
+    public class OrderRedisAdapter : IOrderCacheAdapter, IAsyncDisposable
     {
         private IDatabase _Redis = null!;
         private readonly Lazy<Task> _initTask;
@@ -42,7 +46,6 @@ namespace envolti.lib.redis.adapter.Order
                     var redis = await ConnectionMultiplexer.ConnectAsync( _Settings.Value.Host );
                     _Redis = redis.GetDatabase( );
 
-                    await CreateKeyAsync( );
                     return;
                 }
                 catch ( Exception ex )
@@ -69,85 +72,171 @@ namespace envolti.lib.redis.adapter.Order
             }
         }
 
-        public async Task CreateKeyAsync( )
+        public async Task<T> ConsumerOrderByIdAsync<T>( string property, int id )
         {
-            if ( !await _Redis.KeyExistsAsync( "orders" ) )
+            try
             {
-                await _Redis.ExecuteAsync( "JSON.SET", "orders", "$", "{ \"items\": [] }" );
+                await EnsureInitializedAsync( );
+
+                var json = _Redis.JSON( );
+                var fullKey = $"{_Settings.Value.DatabaseName}:{property}:{id}";
+                var key = await _Redis.SortedSetRangeByRankAsync( fullKey );
+
+                if ( key != null && key.Any( ) )
+                {
+                    var jsonStr = await json.GetAsync( key.FirstOrDefault( ).ToString( ) );
+                    if ( jsonStr != null && !string.IsNullOrEmpty( jsonStr.ToString( ) ) )
+                    {
+                        var obj = JsonConvert.DeserializeObject<T>( jsonStr.ToString( ) );
+                        if ( obj != null )
+                        {
+                            return obj;
+                        }
+                    }
+                }
+            }
+            catch ( Exception ex )
+            {
+                throw new Exception( ex.Message, ex );
+            }
+
+            throw new RecordNotFoundException( );
+        }
+
+        public async Task<PagedResult<T>> ConsumerOrderAllAsync<T>( int pageNumber, int pageSize )
+        {
+            try
+            {
+                await EnsureInitializedAsync( );
+
+                var fullKey = $"{_Settings.Value.DatabaseName}:sortedset";
+
+                var total = ( int )await _Redis.SortedSetLengthAsync( fullKey );
+                int start = ( pageNumber - 1 ) * pageSize;
+                int end = start + pageSize - 1;
+
+                var keys = await _Redis.SortedSetRangeByRankAsync( fullKey, start, end );
+
+                var json = _Redis.JSON( );
+
+                var results = new List<T>( );
+
+                foreach ( var redisKey in keys )
+                {
+                    var jsonStr = await json.GetAsync( redisKey.ToString( ) );
+                    if ( jsonStr != null && !string.IsNullOrEmpty( jsonStr.ToString( ) ) )
+                    {
+                        var obj = JsonConvert.DeserializeObject<T>( jsonStr.ToString( ) );
+                        if ( obj != null )
+                        {
+                            results.Add( obj );
+                        }
+                    }
+                }
+
+                return new PagedResult<T>
+                {
+                    Items = results,
+                    Total = total,
+                    PageNumber = pageNumber,
+                    PageSize = pageSize
+                };
+            }
+            catch ( Exception ex )
+            {
+                throw new Exception( ex.Message, ex );
             }
         }
 
-        async Task<T> IOrderRedisAdapter.ConsumerOrderByIdAsync<T>( string key, string command, string query )
+        public async Task<PagedResult<T>> GetOrdersByStatusAsync<T>( string property, StatusEnum status, int pageNumber, int pageSize )
         {
-            await EnsureInitializedAsync( );
-
-            if ( _Redis?.Multiplexer == null || !_Redis.Multiplexer.IsConnected )
+            try
             {
-                _Logger.LogWarning( "Redis não está conectado. Retornando valor padrão." );
-                return default!;
+                await EnsureInitializedAsync( );
+
+                var fullKey = $"{_Settings.Value.DatabaseName}:{property}:{status}";
+
+                var json = _Redis.JSON( );
+                var total = ( int )await _Redis.SortedSetLengthAsync( fullKey );
+
+                int start = ( pageNumber - 1 ) * pageSize;
+                int end = start + pageSize - 1;
+
+                var keys = await _Redis.SortedSetRangeByRankAsync( fullKey, start, end );
+                var results = new List<T>( );
+
+                foreach ( var redisKey in keys )
+                {
+                    var jsonStr = await json.GetAsync( redisKey.ToString( ) );
+                    if ( jsonStr != null && !string.IsNullOrEmpty( jsonStr.ToString( ) ) )
+                    {
+                        var obj = JsonConvert.DeserializeObject<T>( jsonStr.ToString( ) );
+                        if ( obj != null )
+                        {
+                            results.Add( obj );
+                        }
+                    }
+                }
+
+                return new PagedResult<T>
+                {
+                    Items = results,
+                    Total = total,
+                    PageNumber = pageNumber,
+                    PageSize = pageSize
+                };
             }
-
-            var result = await _Redis.ExecuteAsync( command, key, query );
-            var jsonString = result?.ToString( );
-
-            if ( string.IsNullOrEmpty( jsonString ) )
+            catch ( Exception ex )
             {
-                throw new InvalidOperationException( "The result from Redis is null or empty." );
+                throw new Exception( ex.Message, ex );
             }
-
-            var deserializedList = JsonConvert.DeserializeObject<List<T>>( jsonString );
-            if ( deserializedList == null || deserializedList.Count == 0 )
-            {
-                throw new InvalidOperationException( "Deserialization resulted in a null or empty list." );
-            }
-
-            return deserializedList.First( );
         }
 
-        public async Task<T> ConsumerOrderAllAsync<T>( string key, int pageNumber, int pageSize )
+        public async Task<bool> PublishOrderAsync<T>( T value )
         {
-            await EnsureInitializedAsync( );
-
-            int start = ( pageNumber - 1 ) * pageSize;
-            int end = start + pageSize - 1;
-            string jsonPath = $"$.items[{start}:{end + 1}]";
-
-            var result = await _Redis.ExecuteAsync( "JSON.GET", key, jsonPath );
-            var jsonString = result?.ToString( );
-
-            if ( string.IsNullOrEmpty( jsonString ) )
+            try
             {
-                throw new InvalidOperationException( "The result from Redis is null or empty." );
+                await EnsureInitializedAsync( );
+
+                var fullKey = $"{_Settings.Value.DatabaseName}:{Guid.NewGuid( ).ToString( )}";
+                var json = _Redis.JSON( );
+                var result = await json.SetAsync( fullKey, "$", value );
+
+                if ( result )
+                {
+                    var sortedSetKey = $"{_Settings.Value.DatabaseName}:sortedset";
+                    await _Redis.SortedSetAddAsync( sortedSetKey, fullKey, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds( ) );
+
+                    var statusProp = value?.GetType( ).GetProperty( "Status" );
+                    if ( statusProp != null )
+                    {
+                        var statusValue = statusProp.GetValue( value )?.ToString( );
+                        if ( !string.IsNullOrEmpty( statusValue ) )
+                        {
+                            var statusKey = $"{_Settings.Value.DatabaseName}:status:{statusValue}";
+                            await _Redis.SortedSetAddAsync( statusKey, fullKey, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds( ) );
+                        }
+                    }
+
+                    var orderIdExternalProp = value?.GetType( ).GetProperty( "OrderIdExternal" );
+                    if ( orderIdExternalProp != null )
+                    {
+                        var orderIdExternalValue = orderIdExternalProp.GetValue( value )?.ToString( );
+                        if ( !string.IsNullOrEmpty( orderIdExternalValue ) )
+                        {
+                            var orderIdExternalKey = $"{_Settings.Value.DatabaseName}:orderidexternal:{orderIdExternalValue}";
+                            await _Redis.SortedSetAddAsync( orderIdExternalKey, fullKey, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds( ) );
+                        }
+                    }
+
+                    return true;
+                }
+            }
+            catch ( Exception ex )
+            {
+                throw new Exception( ex.Message, ex );
             }
 
-            return JsonConvert.DeserializeObject<T>( jsonString )!;
-        }
-
-        public async Task<bool> PublishOrderAsync<T>( string key, T value )
-        {
-            await EnsureInitializedAsync( );
-
-            string json = JsonConvert.SerializeObject( value );
-
-            var result = await _Redis.ExecuteAsync( "JSON.ARRAPPEND", key, "$.items", json );
-
-            if ( result.IsNull )
-            {
-                return false;
-            }
-
-            if ( result.Resp2Type == ResultType.Integer )
-            {
-                return ( int )result > 0;
-            }
-
-            if ( result.Resp2Type == ResultType.Array )
-            {
-                var values = result; // Converte para array de RedisResult
-                return values.Length > 0 && Convert.ToInt32( values[ 0 ] ) > 0;
-            }
-
-            _Logger.LogError( $"Tipo inesperado no retorno do Redis: {result.Resp2Type}" );
             return false;
         }
 
@@ -184,6 +273,25 @@ namespace envolti.lib.redis.adapter.Order
         public async ValueTask DisposeAsync( )
         {
             await CloseConnectionAsync( );
+        }
+
+        public async Task<int> ListLengthAsync( )
+        {
+            try
+            {
+                var fullKey = $"{_Settings.Value.DatabaseName}:list";
+                var total = await _Redis.ListLengthAsync( fullKey );
+                if ( total > 0 )
+                {
+                    return ( int )total;
+                }
+            }
+            catch ( Exception ex )
+            {
+                throw new Exception( ex.Message, ex );
+            }
+
+            return 0;
         }
     }
 }

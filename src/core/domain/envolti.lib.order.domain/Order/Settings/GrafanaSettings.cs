@@ -2,6 +2,6 @@
 {
     public class GrafanaSettings
     {
-        public string LokiUrl { get; set; }
+        public string? LokiUrl { get; set; }
     }
 }

@@ -9,6 +9,7 @@ namespace envolti.lib.data.mongodb
         public static void AddMongoDbModule( this IServiceCollection services )
         {
             services.AddScoped<IOrderRepository, OrderRepositoryMongoAdapter>( );
+            MongoMappings.RegisterClassMaps( );
         }
     }
 }

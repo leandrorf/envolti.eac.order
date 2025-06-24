@@ -7,7 +7,7 @@ using MediatR;
 
 namespace envolti.lib.order.application.Order.Commands
 {
-    public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, OrderResponse>
+    public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, CreateOrderResponse>
     {
         private readonly IOrderRepository _OrderRepository;
 
@@ -16,7 +16,7 @@ namespace envolti.lib.order.application.Order.Commands
             _OrderRepository = orderRepository;
         }
 
-        public async Task<OrderResponse> Handle( CreateOrderCommand request, CancellationToken cancellationToken )
+        public async Task<CreateOrderResponse> Handle( CreateOrderCommand request, CancellationToken cancellationToken )
         {
             try
             {
@@ -25,7 +25,7 @@ namespace envolti.lib.order.application.Order.Commands
 
                 await order.Save( _OrderRepository );
 
-                return new OrderResponse
+                return new CreateOrderResponse
                 {
                     Data = order.MapEntityToDto( ),
                     Success = true,
@@ -34,7 +34,7 @@ namespace envolti.lib.order.application.Order.Commands
             }
             catch ( TheOrderNumberCannotBeRepeatedException )
             {
-                return new OrderResponse
+                return new CreateOrderResponse
                 {
                     Data = null!,
                     Success = false,

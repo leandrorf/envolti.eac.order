@@ -15,9 +15,9 @@ namespace envolti.lib.data.sqlserver.Order
             builder.Property( o => o.CreatedAt ).IsRequired( );
             builder.Property( o => o.Status ).IsRequired( );
 
-            builder.HasMany( o => o.Products )
-                   .WithOne( )
-                   .HasForeignKey( p => p.OrderId );
+            //builder.HasMany( o => o.Products )
+            //       .WithOne( )
+            //       .HasForeignKey( p => p.OrderId );
         }
     }
 }

@@ -4,38 +4,30 @@ using MediatR;
 
 namespace envolti.lib.order.application.Order.Queries
 {
-    public class GetOrdersByStatusQueryHandler : IRequestHandler<GetOrdersByStatusQuery, IEnumerable<OrderResponseDto>>
+    public class GetOrdersByStatusQueryHandler : IRequestHandler<GetOrdersByStatusQuery, PagedResult<OrderResponseDto>>
     {
         private readonly IOrderRepository _OrderRepository;
-        private readonly IOrderRedisAdapter _OrderRedisAdapter;
+        private readonly IOrderCacheAdapter _OrderRedisAdapter;
 
-        public GetOrdersByStatusQueryHandler( IOrderRepository orderRepository, IOrderRedisAdapter orderRedisAdapter )
+        public GetOrdersByStatusQueryHandler( IOrderRepository orderRepository, IOrderCacheAdapter orderRedisAdapter )
         {
             _OrderRepository = orderRepository;
             _OrderRedisAdapter = orderRedisAdapter;
         }
 
-        public async Task<IEnumerable<OrderResponseDto>> Handle( GetOrdersByStatusQuery request, CancellationToken cancellationToken )
+        public async Task<PagedResult<OrderResponseDto>> Handle( GetOrdersByStatusQuery request, CancellationToken cancellationToken )
         {
-            var resp = await _OrderRedisAdapter.ConsumerOrderAllAsync<List<OrderResponseDto>>(
-                "orders",
-                request.PageNumber,
-                request.PageSize
-            );
+            var resp = await _OrderRedisAdapter
+                .GetOrdersByStatusAsync<OrderResponseDto>( "status", request.Status, request.PageNumber, request.PageSize );
 
-            if ( resp == null || !resp.Any( ) )
+            if ( resp == null || !resp.Items.Any( ) )
             {
                 var orders = await _OrderRepository.GetOrdersByStatusAsync( request.Status, request.PageNumber, request.PageSize );
 
-                if ( orders != null && orders.Any( ) )
+                if ( orders != null && orders.Items.Any( ) )
                 {
-                    resp = orders.Select( o => o.MapEntityToDto( ) ).ToList( );
-                    await _OrderRedisAdapter.PublishOrderAsync( "orders", resp );
+                    await _OrderRedisAdapter.PublishOrderAsync( resp?.Items );
                 }
-            }
-            else
-            {
-                resp = resp.Where( o => o.Status == request.Status ).ToList( );
             }
 
             return resp!;

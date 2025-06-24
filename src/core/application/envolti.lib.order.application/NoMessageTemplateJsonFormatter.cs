@@ -16,17 +16,28 @@ namespace envolti.lib.order.application
 
         public void Format( LogEvent logEvent, TextWriter output )
         {
-            // Cria novo LogEvent sem MessageTemplate
-            var logEventWithoutTemplate = new LogEvent(
-                logEvent.Timestamp,
-                logEvent.Level,
-                logEvent.Exception,
-                // Template vazio, pois não será serializado
-                new MessageTemplate( "", new List<MessageTemplateToken>( ) ),
-                logEvent.Properties.Select( kv => new LogEventProperty( kv.Key, kv.Value ) )
-            );
+            var message = logEvent.MessageTemplate?.Text;
+            if ( !string.IsNullOrEmpty( message ) && logEvent.Properties != null && logEvent.Properties.Count > 0 )
+            {
+                // Substitui os placeholders pelos valores
+                foreach ( var kv in logEvent.Properties )
+                {
+                    message = message.Replace( "{" + kv.Key + "}", kv.Value.ToString( ).Trim( '"' ) );
+                }
+            }
 
-            _baseFormatter.Format( logEventWithoutTemplate, output );
+            output.Write( "{" );
+            output.Write( $"\"Timestamp\":\"{logEvent.Timestamp:O}\"" );
+            output.Write( $",\"Level\":\"{logEvent.Level}\"" );
+            output.Write( $",\"Message\":\"{message}\"" );
+            // NÃO escreve MessageTemplate
+            if ( logEvent.Properties.Any( ) )
+            {
+                output.Write( ",\"Properties\":{" );
+                output.Write( string.Join( ",", logEvent.Properties.Select( kv => $"\"{kv.Key}\":{kv.Value}" ) ) );
+                output.Write( "}" );
+            }
+            output.Write( "}" );
         }
     }
 }

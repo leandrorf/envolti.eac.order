@@ -20,10 +20,6 @@ builder.Services.AddControllers( );
 builder.Services.AddEndpointsApiExplorer( );
 builder.Services.AddSwaggerGen( );
 
-builder.Services.AddMediatR( cfg =>
-    cfg.RegisterServicesFromAssembly( Assembly.GetExecutingAssembly( ) )
-);
-
 builder.AddApplicationModule( );
 builder.Services.AddRedisModule( );
 builder.Services.AddMongoDbModule( );

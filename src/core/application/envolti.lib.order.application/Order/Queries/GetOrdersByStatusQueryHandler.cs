@@ -1,6 +1,6 @@
-﻿using envolti.lib.order.domain.Order.Dtos;
+﻿using envolti.lib.order.application.Mediator.Interfaces;
+using envolti.lib.order.domain.Order.Dtos;
 using envolti.lib.order.domain.Order.Ports;
-using MediatR;
 
 namespace envolti.lib.order.application.Order.Queries
 {

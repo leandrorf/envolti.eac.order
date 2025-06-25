@@ -1,8 +1,8 @@
-﻿using envolti.lib.order.application.Order.Commands;
+﻿using envolti.lib.order.application.Mediator.Interfaces;
+using envolti.lib.order.application.Order.Commands;
 using envolti.lib.order.application.Order.Responses;
 using envolti.lib.order.domain.Order.Dtos;
 using envolti.lib.order.domain.Order.Enums;
-using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 

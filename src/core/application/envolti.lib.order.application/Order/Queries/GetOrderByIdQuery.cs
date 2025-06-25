@@ -1,5 +1,5 @@
-﻿using envolti.lib.order.application.Order.Responses;
-using MediatR;
+﻿using envolti.lib.order.application.Mediator.Interfaces;
+using envolti.lib.order.application.Order.Responses;
 
 namespace envolti.lib.order.application.Order.Queries
 {

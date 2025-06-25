@@ -23,10 +23,6 @@ builder.Configuration
 
 builder.Services.AddHostedService<Worker>( );
 
-builder.Services.AddMediatR( cfg =>
-    cfg.RegisterServicesFromAssembly( Assembly.GetExecutingAssembly( ) )
-);
-
 builder.AddApplicationModule( );
 builder.Services.AddRabbitMqQueueModule( );
 builder.Services.AddRedisModule( );

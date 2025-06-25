@@ -1,4 +1,6 @@
-﻿using envolti.lib.order.domain.Order.Ports;
+﻿using envolti.lib.order.application.Mediator;
+using envolti.lib.order.application.Mediator.Interfaces;
+using envolti.lib.order.domain.Order.Ports;
 using envolti.lib.order.domain.Order.Settings;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,9 +14,19 @@ namespace envolti.lib.order.application
     {
         public static void AddApplicationModule( this IServiceCollection services )
         {
-            services.AddMediatR( cfg =>
-                cfg.RegisterServicesFromAssembly( Assembly.GetExecutingAssembly( ) )
-            );
+            var assembly = Assembly.GetExecutingAssembly( );
+
+            var handlerTypes = assembly.GetTypes( )
+                .Where( t => !t.IsAbstract && !t.IsInterface )
+                .SelectMany( t => t.GetInterfaces( ), ( type, iface ) => new { type, iface } )
+                .Where( t => t.iface.IsGenericType && t.iface.GetGenericTypeDefinition( ) == typeof( IRequestHandler<,> ) );
+
+            foreach ( var handler in handlerTypes )
+            {
+                services.AddScoped( handler.iface, handler.type );
+            }
+
+            services.AddScoped<IMediator, MediatorLR>( );
 
             services.AddScoped<IOrderRepository>( sp =>
             {

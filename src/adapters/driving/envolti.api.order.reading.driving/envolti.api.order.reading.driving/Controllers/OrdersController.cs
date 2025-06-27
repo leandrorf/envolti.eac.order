@@ -1,7 +1,6 @@
 ﻿using envolti.lib.order.application.Mediator.Interfaces;
 using envolti.lib.order.application.Order.Queries;
 using envolti.lib.order.application.Order.Responses;
-using envolti.lib.order.domain.Order.Dtos;
 using envolti.lib.order.domain.Order.Enums;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
@@ -77,7 +76,7 @@ namespace envolti.api.order.reading.driving.Controllers
         }
 
         [HttpGet( "GetByStatus" )]
-        public async Task<ActionResult<IEnumerable<OrderListResponse>>> GetByStatus( StatusEnum status, int pageNumber = 1, int pageSize = 10 )
+        public async Task<ActionResult<OrderListResponse>> GetByStatus( StatusEnum status, int pageNumber = 1, int pageSize = 10 )
         {
             Stopwatch stopwatch = Stopwatch.StartNew( );
 
@@ -90,7 +89,7 @@ namespace envolti.api.order.reading.driving.Controllers
 
             var response = await _mediator.Send( query );
 
-            if ( response.Items.Any( ) )
+            if ( response.Data?.Items != null && response.Data.Items.Any( ) )
             {
                 stopwatch.Stop( );
                 _Logger.LogInformation( $"Tempo total da requisição por status dos pedidos: {stopwatch.ElapsedMilliseconds} ms" );

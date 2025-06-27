@@ -24,11 +24,11 @@ namespace envolti.lib.order.application.Order.Queries
             {
                 var resp = await _OrderRedisAdapter.ConsumerOrderAllAsync<OrderResponseDto>( request.PageNumber, request.PageSize );
 
-                if ( resp.Items.Any( ) )
+                if ( resp?.Items?.Any( ) == true ) // Ensure resp and Items are not null before calling Any()
                 {
                     var orders = await _OrderRepository.GetAllAsync( request.PageNumber, request.PageSize );
 
-                    if ( orders != null && orders.Items.Any( ) )
+                    if ( orders?.Items?.Any( ) == true ) // Ensure orders and Items are not null before calling Any()
                     {
                         var items = orders.Items.Select( o => o.MapEntityToDto( ) ).ToList( );
 
@@ -44,7 +44,7 @@ namespace envolti.lib.order.application.Order.Queries
                     }
                 }
 
-                if ( !resp.Items.Any( ) )
+                if ( resp?.Items?.Any( ) != true ) // Check for null and empty Items
                 {
                     throw new NoRecordsFoundException( );
                 }

@@ -4,7 +4,6 @@ using envolti.lib.rabbitmq.adapter;
 using envolti.lib.redis.adapter;
 using envolti.service.order.driving;
 using Microsoft.AspNetCore.Builder;
-using System.Reflection;
 
 var environment = Environment.GetEnvironmentVariable( "ASPNETCORE_ENVIRONMENT" ) ?? "Production";
 

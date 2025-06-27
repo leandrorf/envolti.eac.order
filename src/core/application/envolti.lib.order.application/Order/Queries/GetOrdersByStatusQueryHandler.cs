@@ -1,13 +1,17 @@
 ﻿using envolti.lib.order.application.Mediator.Interfaces;
+using envolti.lib.order.application.Order.Responses;
 using envolti.lib.order.domain.Order.Dtos;
+using envolti.lib.order.domain.Order.Enums;
+using envolti.lib.order.domain.Order.Exceptions;
 using envolti.lib.order.domain.Order.Ports;
 
 namespace envolti.lib.order.application.Order.Queries
 {
-    public class GetOrdersByStatusQueryHandler : IRequestHandler<GetOrdersByStatusQuery, PagedResult<OrderResponseDto>>
+    public class GetOrdersByStatusQueryHandler : IRequestHandler<GetOrdersByStatusQuery, OrderListResponse>
     {
         private readonly IOrderRepository _OrderRepository;
         private readonly IOrderCacheAdapter _OrderRedisAdapter;
+        private readonly IOrderQueuesAdapter _OrderQueuesAdapter;
 
         public GetOrdersByStatusQueryHandler( IOrderRepository orderRepository, IOrderCacheAdapter orderRedisAdapter )
         {
@@ -15,22 +19,53 @@ namespace envolti.lib.order.application.Order.Queries
             _OrderRedisAdapter = orderRedisAdapter;
         }
 
-        public async Task<PagedResult<OrderResponseDto>> Handle( GetOrdersByStatusQuery request, CancellationToken cancellationToken )
+        public async Task<OrderListResponse> Handle( GetOrdersByStatusQuery request, CancellationToken cancellationToken )
         {
-            var resp = await _OrderRedisAdapter
-                .GetOrdersByStatusAsync<OrderResponseDto>( "status", request.Status, request.PageNumber, request.PageSize );
-
-            if ( resp == null || !resp.Items.Any( ) )
+            try
             {
-                var orders = await _OrderRepository.GetOrdersByStatusAsync( request.Status, request.PageNumber, request.PageSize );
+                var resp = await _OrderRedisAdapter.GetOrdersByStatusAsync<OrderResponseDto>( "status", request.Status, request.PageNumber, request.PageSize );
 
-                if ( orders != null && orders.Items.Any( ) )
+
+                if ( resp == null || resp.Items?.Any( ) == null )
                 {
-                    await _OrderRedisAdapter.PublishOrderAsync( resp?.Items );
-                }
-            }
+                    var orders = await _OrderRepository.GetOrdersByStatusAsync( request.Status, request.PageNumber, request.PageSize );
 
-            return resp!;
+                    if ( orders?.Items != null && orders.Items.Any( ) )
+                    {
+                        await _OrderRedisAdapter.PublishOrderAsync( resp?.Items );
+                    }
+                }
+
+                if ( resp?.Items?.Any( ) == null )
+                {
+                    throw new NoRecordsFoundException( );
+                }
+
+                return new OrderListResponse
+                {
+                    Data = resp,
+                    Success = true,
+                    Message = "Orders retrieved successfully."
+                };
+            }
+            catch ( NoRecordsFoundException )
+            {
+                return new OrderListResponse
+                {
+                    Success = false,
+                    ErrorCode = ErrorCodesResponseEnum.RECORD_NOT_FOUND,
+                    Message = "No orders found."
+                };
+            }
+            catch ( Exception ex )
+            {
+                return new OrderListResponse
+                {
+                    Success = false,
+                    ErrorCode = ErrorCodesResponseEnum.UNIDENTIFIED_ERROR,
+                    Message = $"An unexpected error occurred: {ex.Message}"
+                };
+            }
         }
     }
 }

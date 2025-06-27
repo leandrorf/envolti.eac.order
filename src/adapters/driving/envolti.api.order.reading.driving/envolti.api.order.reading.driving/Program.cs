@@ -1,7 +1,6 @@
 using envolti.lib.data.mongodb;
 using envolti.lib.order.application;
 using envolti.lib.redis.adapter;
-using System.Reflection;
 
 var environment = Environment.GetEnvironmentVariable( "ASPNETCORE_ENVIRONMENT" ) ?? "Production";
 

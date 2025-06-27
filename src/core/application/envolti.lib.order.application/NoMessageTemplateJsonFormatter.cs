@@ -1,12 +1,6 @@
 ﻿using Serilog.Events;
 using Serilog.Formatting;
 using Serilog.Formatting.Json;
-using Serilog.Parsing;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace envolti.lib.order.application
 {

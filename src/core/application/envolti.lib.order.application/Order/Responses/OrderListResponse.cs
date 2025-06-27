@@ -4,6 +4,6 @@ namespace envolti.lib.order.application.Order.Responses
 {
     public class OrderListResponse : Response
     {
-        public PagedResult<OrderResponseDto> Data;
+        public PagedResult<OrderResponseDto>? Data { get; set; }
     }
 }

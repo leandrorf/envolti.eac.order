@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace envolti.lib.order.application.Mediator.Interfaces
+﻿namespace envolti.lib.order.application.Mediator.Interfaces
 {
     public interface IMediator
     {

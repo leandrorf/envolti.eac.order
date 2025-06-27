@@ -45,7 +45,7 @@ namespace envolti.lib.data.sqlserver.Order
 
         }
 
-        public async Task<PagedResult<OrderEntity>> GetAllAsync( int pageNumber = 1, int pageSize = 10 )
+        public async Task<PagedResult<OrderEntity>?> GetAllAsync( int pageNumber = 1, int pageSize = 10 )
         {
 
             return null;
@@ -63,7 +63,7 @@ namespace envolti.lib.data.sqlserver.Order
                 .FirstOrDefaultAsync( x => x.OrderIdExternal == orderIdExternal );
         }
 
-        public async Task<PagedResult<OrderEntity>> GetOrdersByStatusAsync( StatusEnum status, int pageNumber, int pageSize )
+        public async Task<PagedResult<OrderEntity>?> GetOrdersByStatusAsync( StatusEnum status, int pageNumber, int pageSize )
         {
             return null;
             //var filter = Builders<OrderEntity>.Filter.Eq( o => o.Status, status );

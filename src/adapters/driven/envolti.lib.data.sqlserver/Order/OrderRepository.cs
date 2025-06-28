@@ -63,27 +63,6 @@ namespace envolti.lib.data.sqlserver.Order
                 .FirstOrDefaultAsync( x => x.OrderIdExternal == orderIdExternal );
         }
 
-        public async Task<PagedResult<OrderEntity>?> GetOrdersByStatusAsync( StatusEnum status, int pageNumber, int pageSize )
-        {
-            return null;
-            //var filter = Builders<OrderEntity>.Filter.Eq( o => o.Status, status );
-            //var total = ( int )await _collection.CountDocumentsAsync( filter );
-
-            //var pedidos = await _collection.Find( filter )
-            //    .Skip( ( pageNumber - 1 ) * pageSize )
-            //    .Limit( pageSize )
-            //    .ToListAsync( );
-
-            //return new PagedResult<OrderEntity>
-            //{
-            //    Total = total,
-            //    PaginaAtual = pageNumber,
-            //    TamanhoPagina = pageSize,
-            //    Itens = pedidos
-            //};
-
-        }
-
         public async Task<bool> OrderExistsAsync( int id )
         {
             return await _DbContext.Orders

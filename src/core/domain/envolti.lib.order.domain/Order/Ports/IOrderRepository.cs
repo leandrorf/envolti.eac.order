@@ -8,7 +8,6 @@ namespace envolti.lib.order.domain.Order.Ports
     {
         Task<bool> OrderExistsAsync( int id );
         Task<PagedResult<OrderEntity>> GetAllAsync( int pageNumber, int pageSize );
-        Task<PagedResult<OrderEntity>> GetOrdersByStatusAsync( StatusEnum status, int pageNumber, int pageSize );
         Task<OrderEntity?> GetOrderByIdAsync( int id );
         Task<OrderEntity> CreateOrderAsync( OrderEntity order );
     }

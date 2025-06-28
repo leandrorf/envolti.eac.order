@@ -43,7 +43,8 @@ namespace envolti.lib.redis.adapter.Order
                     _Logger.LogInformation( "Conectando ao Redis. Tentativa {Attempt}", i + 1 );
                     _Logger.LogInformation( "Host: {Host}", _Settings.Value.Host );
 
-                    var redis = await ConnectionMultiplexer.ConnectAsync( _Settings.Value.Host );
+                    var host = _Settings.Value.Host ?? throw new ArgumentNullException( nameof( _Settings.Value.Host ), "Redis host configuration is null." );
+                    var redis = await ConnectionMultiplexer.ConnectAsync( host );
                     _Redis = redis.GetDatabase( );
 
                     return;
@@ -119,50 +120,6 @@ namespace envolti.lib.redis.adapter.Order
 
                 var json = _Redis.JSON( );
 
-                var results = new List<T>( );
-
-                foreach ( var redisKey in keys )
-                {
-                    var jsonStr = await json.GetAsync( redisKey.ToString( ) );
-                    if ( jsonStr != null && !string.IsNullOrEmpty( jsonStr.ToString( ) ) )
-                    {
-                        var obj = JsonConvert.DeserializeObject<T>( jsonStr.ToString( ) );
-                        if ( obj != null )
-                        {
-                            results.Add( obj );
-                        }
-                    }
-                }
-
-                return new PagedResult<T>
-                {
-                    Items = results,
-                    Total = total,
-                    PageNumber = pageNumber,
-                    PageSize = pageSize
-                };
-            }
-            catch ( Exception ex )
-            {
-                throw new Exception( ex.Message, ex );
-            }
-        }
-
-        public async Task<PagedResult<T>> GetOrdersByStatusAsync<T>( string property, StatusEnum status, int pageNumber, int pageSize )
-        {
-            try
-            {
-                await EnsureInitializedAsync( );
-
-                var fullKey = $"{_Settings.Value.DatabaseName}:{property}:{status}";
-
-                var json = _Redis.JSON( );
-                var total = ( int )await _Redis.SortedSetLengthAsync( fullKey );
-
-                int start = ( pageNumber - 1 ) * pageSize;
-                int end = start + pageSize - 1;
-
-                var keys = await _Redis.SortedSetRangeByRankAsync( fullKey, start, end );
                 var results = new List<T>( );
 
                 foreach ( var redisKey in keys )

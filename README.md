@@ -55,15 +55,16 @@ docker-compose up -d
   Obter todos os pedidos
   http://localhost:8084/api/order/getall
 
-  Obter pedidos filtrando por status
-  http://localhost:8084/api/order/GetByStatus
-
   Obter pedido filtrando por Id
   http://localhost:8084/api/order/PEDIDOID
 ```
 
 ### Exemplo de requisição GET
 ```
+# Obter pedido filtrando por Id
+http://localhost:8084/api/order/PEDIDOID
+
+Response:
 {
     "orderIdExternal": 7000000,
     "totalPrice": 185.48,
@@ -88,10 +89,44 @@ docker-compose up -d
         }
     ]
 }
+
+# Obter todos os pedidos
+http://localhost:8084/api/order/getall
+
+Response:
+[
+    {
+        "orderIdExternal": 7000000,
+        "totalPrice": 185.48,
+        "createdAt": "2025-06-18T19:51:47.4055155+00:00",
+        "processedIn": "2025-06-18T19:51:47.4062668+00:00",
+        "status": 1,
+        "products": [
+            {
+                "productIdExternal": 1354,
+                "name": "Produto 1",
+                "price": 15.9
+            },
+            {
+                "productIdExternal": 6599,
+                "name": "Produto 2",
+                "price": 102.99
+            },
+            {
+                "productIdExternal": 5536,
+                "name": "Produto 3",
+                "price": 66.59
+            }
+        ]
+    }
+]
 ```
 
 ### Exemplo de requisição POST
 ```
+http://localhost:8080/api/Orders
+
+Body:
 {
   "orderIdExternal": 1,
   "products": [

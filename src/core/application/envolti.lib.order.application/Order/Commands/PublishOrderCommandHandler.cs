@@ -12,16 +12,13 @@ namespace envolti.lib.order.application.Order.Commands
 {
     public class PublishOrderCommandHandler : IRequestHandler<PublishOrderCommand, OrderQueueResponse>
     {
-        private readonly IOrderCacheAdapter _OrderCacheAdapter;
         private readonly IOrderQueuesAdapter _OrderAdapter;
         private readonly IOptions<RabbitMqSettings> _Settings;
-        private readonly IOptions<RedisSettings> _RedisSettings;
 
         public PublishOrderCommandHandler( IOrderQueuesAdapter orderAdapter, IOptions<RabbitMqSettings> settings, IOrderCacheAdapter orderCacheAdapter )
         {
             _OrderAdapter = orderAdapter ?? throw new ArgumentNullException( nameof( orderAdapter ) );
             _Settings = settings ?? throw new ArgumentNullException( nameof( settings ) );
-            _OrderCacheAdapter = orderCacheAdapter ?? throw new ArgumentNullException( nameof( orderCacheAdapter ) );
         }
 
         public async Task<OrderQueueResponse> Handle( PublishOrderCommand request, CancellationToken cancellationToken )
@@ -38,7 +35,6 @@ namespace envolti.lib.order.application.Order.Commands
                 }
 
                 await order.Save( _OrderAdapter, _Settings.Value.Queue.OrderQueue );
-                await _OrderCacheAdapter.PublishOrderAsync( orderEntity );
 
                 return new OrderQueueResponse
                 {

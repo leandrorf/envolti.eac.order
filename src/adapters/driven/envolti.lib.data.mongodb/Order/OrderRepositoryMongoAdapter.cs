@@ -51,25 +51,6 @@ namespace envolti.lib.data.mongodb.Order
             return await result.FirstOrDefaultAsync( );
         }
 
-        public async Task<PagedResult<OrderEntity>> GetOrdersByStatusAsync( StatusEnum status, int pageNumber, int pageSize )
-        {
-            var filter = Builders<OrderEntity>.Filter.Eq( o => o.Status, status );
-            var total = ( int )await _collection.CountDocumentsAsync( filter );
-
-            var pedidos = await _collection.Find( filter )
-                .Skip( ( pageNumber - 1 ) * pageSize )
-                .Limit( pageSize )
-                .ToListAsync( );
-
-            return new PagedResult<OrderEntity>
-            {
-                Total = total,
-                PageNumber = pageNumber,
-                PageSize = pageSize,
-                Items = pedidos
-            };
-        }
-
         public async Task<bool> OrderExistsAsync( int id )
         {
             var filter = Builders<OrderEntity>.Filter.Eq( o => o.OrderIdExternal, id );

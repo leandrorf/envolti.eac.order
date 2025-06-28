@@ -74,31 +74,5 @@ namespace envolti.api.order.reading.driving.Controllers
 
             return NotFound( );
         }
-
-        [HttpGet( "GetByStatus" )]
-        public async Task<ActionResult<OrderListResponse>> GetByStatus( StatusEnum status, int pageNumber = 1, int pageSize = 10 )
-        {
-            Stopwatch stopwatch = Stopwatch.StartNew( );
-
-            var query = new GetOrdersByStatusQuery
-            {
-                Status = status,
-                PageNumber = pageNumber,
-                PageSize = pageSize
-            };
-
-            var response = await _mediator.Send( query );
-
-            if ( response.Data?.Items != null && response.Data.Items.Any( ) )
-            {
-                stopwatch.Stop( );
-                _Logger.LogInformation( $"Tempo total da requisição por status dos pedidos: {stopwatch.ElapsedMilliseconds} ms" );
-                Console.WriteLine( $"Tempo total da requisição por status dos pedidos: {stopwatch.ElapsedMilliseconds} ms" );
-
-                return Ok( response );
-            }
-
-            return NotFound( );
-        }
     }
 }

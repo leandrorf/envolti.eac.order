@@ -161,5 +161,10 @@ namespace envolti.lib.rabbitmq.adapter.Order
                 await _Connection.CloseAsync( );
             }
         }
+
+        public async Task<uint> Unprocessed( string queueName )
+        {
+            throw new NotImplementedException( "Método Unprocessed não implementado." );
+        }
     }
 }

@@ -1,5 +1,6 @@
 using envolti.lib.order.application;
 using envolti.lib.rabbitmq.adapter;
+using envolti.lib.redis.adapter;
 
 //var builder = WebApplication.CreateBuilder( args );
 
@@ -23,6 +24,7 @@ builder.Services.AddSwaggerGen( );
 builder.AddApplicationModule( );
 
 builder.Services.AddRabbitMqQueueModule( );
+builder.Services.AddRedisModule( );
 
 var app = builder.Build( );
 

@@ -21,6 +21,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\core\application\envolti.lib.order.application\envolti.lib.order.application.csproj" />
     <ProjectReference Include="..\..\..\driven\envolti.lib.rabbitmq.adapter\envolti.lib.rabbitmq.adapter.csproj" />
+    <ProjectReference Include="..\..\..\driven\envolti.lib.redis.adapter\envolti.lib.redis.adapter.csproj" />
   </ItemGroup>
 
 </Project>

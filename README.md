@@ -52,15 +52,6 @@ docker-compose up -d
 
 ### Exemplo de requisição GET
 ```
-  Obter todos os pedidos
-  http://localhost:8084/api/order/getall
-
-  Obter pedido filtrando por Id
-  http://localhost:8084/api/order/PEDIDOID
-```
-
-### Exemplo de requisição GET
-```
 # Obter pedido filtrando por Id
 http://localhost:8084/api/order/PEDIDOID
 

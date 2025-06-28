@@ -11,7 +11,7 @@ namespace envolti.lib.order.domain.Order.Adapters
             return new OrderCacheAdapter
             {
                 OrderIdExternal = dto.OrderIdExternal,
-                Products = dto.Products.Select( p => new OrderRequestDto.Produtos
+                Products = dto.Products.Select( p => new ProductRequestDto
                 {
                     ProductIdExternal = p.ProductIdExternal,
                     Name = p.Name,

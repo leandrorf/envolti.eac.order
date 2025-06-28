@@ -8,8 +8,8 @@ using System.Diagnostics;
 
 namespace envolti.api.order.driving.Controllers
 {
-    [Route( "api/[controller]" )]
     [ApiController]
+    [Route( "api/[controller]" )]
     public class OrdersController : ControllerBase
     {
         private readonly IMediator _Mediator;

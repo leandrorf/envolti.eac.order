@@ -11,15 +11,7 @@ namespace envolti.lib.order.domain.Order.Dtos
         public DateTime CreatedAt { get; set; }
         public DateTime ProcessedIn { get; set; }
         public StatusEnum Status { get; set; }
-        public required List<Produtos> Products { get; set; } = new( );
-
-        public class Produtos
-        {
-            public string? Id { get; set; }
-            public required int ProductIdExternal { get; set; }
-            public required string Name { get; set; }
-            public required decimal Price { get; set; }
-        }
+        public required List<ProductResponseDto> Products { get; set; } = new( );
 
         public static OrderResponseDto MapToDto( OrderEntity order )
         {
@@ -27,7 +19,7 @@ namespace envolti.lib.order.domain.Order.Dtos
             {
                 Id = order.Id,
                 OrderIdExternal = order.OrderIdExternal,
-                Products = order.Products.Select( p => new Produtos
+                Products = order.Products.Select( p => new ProductResponseDto
                 {
                     Id = p.Id,
                     ProductIdExternal = p.ProductIdExternal,

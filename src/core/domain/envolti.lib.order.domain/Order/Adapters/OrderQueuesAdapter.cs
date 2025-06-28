@@ -21,7 +21,7 @@ namespace envolti.lib.order.domain.Order.Adapters
             return new OrderQueuesAdapter
             {
                 OrderIdExternal = dto.OrderIdExternal,
-                Products = dto.Products.Select( p => new Produtos
+                Products = dto.Products.Select( p => new ProductRequestDto
                 {
                     ProductIdExternal = p.ProductIdExternal,
                     Name = p.Name,
@@ -52,7 +52,7 @@ namespace envolti.lib.order.domain.Order.Adapters
             return new OrderResponseQueueDto
             {
                 OrderIdExternal = OrderIdExternal,
-                Products = Products.Select( x => new OrderResponseQueueDto.Produtos
+                Products = Products.Select( x => new ProductResponseDto
                 {
                     ProductIdExternal = x.ProductIdExternal,
                     Name = x.Name,

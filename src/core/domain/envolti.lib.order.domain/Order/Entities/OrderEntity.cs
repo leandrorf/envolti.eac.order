@@ -58,7 +58,7 @@ namespace envolti.lib.order.domain.Order.Entities
                 CreatedAt = CreatedAt,
                 ProcessedIn = ProcessedIn ?? DateTime.MinValue,
                 Status = Status,
-                Products = Products.Select( p => new OrderResponseDto.Produtos
+                Products = Products.Select( p => new ProductResponseDto
                 {
                     Id = p.Id,
                     ProductIdExternal = p.ProductIdExternal,

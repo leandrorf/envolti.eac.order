@@ -14,7 +14,7 @@ namespace envolti.lib.rabbitmq.adapter.Order
     {
         private IConnection _Connection = null!;
         private IChannel _Channel = null!;
-        private AsyncEventingBasicConsumer _Consumer;
+        private AsyncEventingBasicConsumer? _Consumer;
         private readonly SemaphoreSlim _Lock = new( 1, 1 );
         private readonly IOptions<RabbitMqSettings> _Settings;
         private readonly ILogger<OrderQueueAdapter> _Logger;
@@ -115,15 +115,7 @@ namespace envolti.lib.rabbitmq.adapter.Order
 
         public async Task CloseConnectionAsync( )
         {
-            if ( _Channel != null )
-            {
-                await _Channel.CloseAsync( );
-            }
-
-            if ( _Connection != null )
-            {
-                await _Connection.CloseAsync( );
-            }
+            await DisposeAsync( );
         }
 
         public async Task<bool> Exists( string queueName, int correlationId )
@@ -160,11 +152,8 @@ namespace envolti.lib.rabbitmq.adapter.Order
             {
                 await _Connection.CloseAsync( );
             }
-        }
 
-        public async Task<uint> Unprocessed( string queueName )
-        {
-            throw new NotImplementedException( "Método Unprocessed não implementado." );
+            _Consumer = null;
         }
     }
 }

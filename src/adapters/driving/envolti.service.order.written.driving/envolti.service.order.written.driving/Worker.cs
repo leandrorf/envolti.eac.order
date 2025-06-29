@@ -91,7 +91,8 @@ namespace envolti.service.order.driving
                     }
                 );
 
-                await Task.Delay( 1000, stoppingToken );
+                await Task.Delay( 300, stoppingToken );
+                //await _OrderQueueAdapter.CloseConnectionAsync( );
             }
         }
 

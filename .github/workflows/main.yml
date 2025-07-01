@@ -5,6 +5,12 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+  packages: write
+
+
+
 jobs:
   pack-and-publish:
     runs-on: ubuntu-latest
@@ -23,6 +29,9 @@ jobs:
 
       - name: Build
         run: dotnet build --configuration Release --no-restore
+
+      - name: Check environment
+        run: printenv | grep GITHUB
 
       - name: Pack NuGet package
         run: dotnet pack --configuration Release --no-build --output ./nupkg /p:Version=${{ github.run_number }}

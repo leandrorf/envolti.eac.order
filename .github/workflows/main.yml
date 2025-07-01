@@ -32,7 +32,9 @@ jobs:
         run: printenv | grep GITHUB
 
       - name: Pack NuGet package
+        if: github.ref == 'refs/heads/main'
         run: dotnet pack --configuration Release --no-build --output ./nupkg /p:Version=${{ github.run_number }}
   
       - name: Publish to GitHub Packages
+        if: github.ref == 'refs/heads/main'
         run: dotnet nuget push "./nupkg/*.nupkg" --api-key ${{ secrets.NUGET_AUTH_TOKEN }} --source "https://nuget.pkg.github.com/leandrorf/index.json"

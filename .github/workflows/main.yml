@@ -29,9 +29,6 @@ jobs:
       - name: Build
         run: dotnet build --configuration Release --no-restore
 
-      - name: Check environment
-        run: printenv | grep GITHUB
-
       - name: Pack NuGet package
         if: github.ref == 'refs/heads/main'
         run: dotnet pack --configuration Release --no-build --output ./nupkg /p:Version=${{ github.run_number }}

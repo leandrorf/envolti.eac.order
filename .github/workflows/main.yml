@@ -3,7 +3,12 @@ name: Publish NuGet package
 on:
   push:
     branches:
-      - main  # ou 'master', depende do seu fluxo
+      - main
+      - develop
+
+permissions:
+  contents: read
+  packages: write
 
 jobs:
   pack-and-publish:
@@ -16,7 +21,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '9.0.x' # ou a versão que seu projeto usa
+          dotnet-version: '9.0.x'
 
       - name: Restore dependencies
         run: dotnet restore
@@ -25,7 +30,9 @@ jobs:
         run: dotnet build --configuration Release --no-restore
 
       - name: Pack NuGet package
+        if: github.ref == 'refs/heads/main'
         run: dotnet pack --configuration Release --no-build --output ./nupkg /p:Version=${{ github.run_number }}
-
+  
       - name: Publish to GitHub Packages
-        run: dotnet nuget push "./nupkg/*.nupkg" --api-key ${{ secrets.GITHUB_TOKEN }} --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
+        if: github.ref == 'refs/heads/main'
+        run: dotnet nuget push "./nupkg/*.nupkg" --api-key ${{ secrets.NUGET_AUTH_TOKEN }} --source "https://nuget.pkg.github.com/leandrorf/index.json"

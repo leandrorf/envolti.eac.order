@@ -39,7 +39,8 @@ namespace envolti.lib.order.application.Order.Queries
                 {
                     Data = resp,
                     Success = true,
-                    Message = "Order retrieved successfully."
+                    Message = "Order retrieved successfully.",
+                    ErrorCode = 0
                 };
             }
             catch ( RecordNotFoundException )

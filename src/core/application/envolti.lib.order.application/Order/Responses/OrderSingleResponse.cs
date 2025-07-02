@@ -4,6 +4,6 @@ namespace envolti.lib.order.application.Order.Responses
 {
     public class OrderSingleResponse : Response
     {
-        public OrderResponseDto? Data;
+        public OrderResponseDto? Data { get; set; }
     }
 }

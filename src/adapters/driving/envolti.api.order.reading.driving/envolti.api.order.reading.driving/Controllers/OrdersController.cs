@@ -21,7 +21,7 @@ namespace envolti.api.order.reading.driving.Controllers
         }
 
         [HttpGet( "{OrderIdExternal}" )]
-        public async Task<ActionResult<OrderListResponse>> Get( int OrderIdExternal )
+        public async Task<ActionResult<OrderSingleResponse>> Get( int OrderIdExternal )
         {
             Stopwatch stopwatch = Stopwatch.StartNew( );
 
@@ -38,7 +38,7 @@ namespace envolti.api.order.reading.driving.Controllers
                 _Logger.LogInformation( $"Tempo total da requisição do pedido por Id: {stopwatch.ElapsedMilliseconds} ms" );
                 Console.WriteLine( $"Tempo total da requisição do pedido por Id: {stopwatch.ElapsedMilliseconds} ms" );
 
-                return Ok( response.Data );
+                return Ok( response );
             }
             else if ( response.ErrorCode == ErrorCodesResponseEnum.RECORD_NOT_FOUND )
             {
